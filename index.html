@@ -657,7 +657,7 @@
             // Load GLB model
             const loader = new GLTFLoader();
             loader.load(
-                '/mnt/user-data/uploads/vertebra.glb',
+                'vertebra.glb',
                 function (gltf) {
                     vertebraModel = gltf.scene;
                     
@@ -694,7 +694,13 @@
                 },
                 function (error) {
                     console.error('Error loading model:', error);
-                    document.querySelector('.loading').innerHTML = '<div style="color: #ef4444;">Error loading model</div>';
+                    document.querySelector('.loading').innerHTML = `
+                        <div style="color: #ef4444; padding: 20px; text-align: center;">
+                            <h3 style="margin-bottom: 15px;">❌ Model Not Found</h3>
+                            <p style="color: #94a9c9; margin-bottom: 10px;">Please upload <strong>vertebra.glb</strong> to your GitHub repository</p>
+                            <p style="color: #94a9c9; font-size: 0.9rem;">The file should be in the same folder as index.html</p>
+                        </div>
+                    `;
                 }
             );
             
