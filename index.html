@@ -1,1 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Vertebral Column Anatomy</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        :root {
+            --primary-dark: #0a2540;
+            --primary-blue: #1a5490;
+            --accent-cyan: #00d4ff;
+            --cervical-color: #4a90e2;
+            --thoracic-color: #50c878;
+            --lumbar-color: #ff8c42;
+            --sacral-color: #9b59b6;
+            --coccyx-color: #e74c3c;
+            --bg-dark: #0d1b2a;
+            --bg-card: #1b2838;
+            --text-light: #e0e6ed;
+            --text-muted: #8b95a5;
+            --border-color: #2a3f5f;
+        }
+
+        body {
+            font-family: 'Source Sans 3', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #1a2332 100%);
+            color: var(--text-light);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* 3D Canvas Section */
+        .canvas-section {
+            flex: 1;
+            position: relative;
+            background: radial-gradient(ellipse at center, rgba(26, 84, 144, 0.1) 0%, transparent 70%);
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Control Panel */
+        .control-panel {
+            width: 420px;
+            background: rgba(27, 40, 56, 0.95);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid var(--border-color);
+            padding: 2.5rem;
+            overflow-y: auto;
+            animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .logo {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-weight: 300;
+        }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem 0;
+            color: var(--text-light);
+            letter-spacing: -0.3px;
+        }
+
+        .section-title:first-of-type {
+            margin-top: 0;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            background: rgba(26, 84, 144, 0.2);
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+            padding: 0.875rem 1.25rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Source Sans 3', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            background: rgba(26, 84, 144, 0.4);
+            border-color: var(--accent-cyan);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.2);
+        }
+
+        .btn.active {
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-cyan));
+            border-color: var(--accent-cyan);
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-primary {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--primary-blue));
+            border: none;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+        }
+
+        /* Vertebrae List */
+        .vertebrae-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .vertebra-item {
+            background: rgba(26, 84, 144, 0.1);
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .vertebra-item:hover {
+            background: rgba(26, 84, 144, 0.25);
+            border-color: var(--accent-cyan);
+            transform: translateX(5px);
+        }
+
+        .vertebra-item.selected {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        }
+
+        .vertebra-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .vertebra-name {
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        /* Info Panel */
+        .info-panel {
+            background: rgba(26, 84, 144, 0.15);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .info-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            margin-bottom: 0.75rem;
+        }
+
+        .info-text {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Quiz Overlay */
+        .quiz-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 27, 42, 0.98);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.4s;
+        }
+
+        .quiz-overlay.active {
+            display: flex;
+        }
+
+        .quiz-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 700px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .quiz-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+
+        .quiz-progress {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            background: rgba(26, 84, 144, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .option {
+            background: rgba(26, 84, 144, 0.1);
+            border: 2px solid var(--border-color);
+            padding: 1.25rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            font-size: 1rem;
+        }
+
+        .option:hover {
+            background: rgba(26, 84, 144, 0.25);
+            border-color: var(--accent-cyan);
+            transform: translateX(8px);
+        }
+
+        .option.selected {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: var(--accent-cyan);
+        }
+
+        .option.correct {
+            background: rgba(80, 200, 120, 0.2);
+            border-color: #50c878;
+        }
+
+        .option.incorrect {
+            background: rgba(231, 76, 60, 0.2);
+            border-color: #e74c3c;
+        }
+
+        .quiz-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .quiz-btn {
+            flex: 1;
+            padding: 1rem;
+            border-radius: 12px;
+            border: none;
+            font-family: 'Source Sans 3', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quiz-btn-next {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--primary-blue));
+            color: white;
+        }
+
+        .quiz-btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+        }
+
+        .quiz-btn-close {
+            background: rgba(26, 84, 144, 0.2);
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+        }
+
+        .quiz-btn-close:hover {
+            background: rgba(26, 84, 144, 0.4);
+        }
+
+        .quiz-result {
+            text-align: center;
+            animation: fadeIn 0.5s;
+        }
+
+        .quiz-score {
+            font-family: 'Outfit', sans-serif;
+            font-size: 4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--primary-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 2rem 0;
+        }
+
+        .quiz-message {
+            font-size: 1.25rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        /* Loading Animation */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .loading-text {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            color: var(--accent-cyan);
+        }
+
+        /* Scrollbar */
+        .control-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .control-panel::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .control-panel::-webkit-scrollbar-thumb {
+            background: rgba(0, 212, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        .control-panel::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 212, 255, 0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .container {
+                flex-direction: column;
+            }
+            .canvas-section {
+                height: 50vh;
+            }
+            .control-panel {
+                width: 100%;
+                height: 50vh;
+                border-left: none;
+                border-top: 1px solid var(--border-color);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="canvas-section">
+            <div id="canvas-container"></div>
+            <div class="loading" id="loading">
+                <div class="loading-text">Loading 3D Model...</div>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <div class="logo">SPINAL ANATOMY</div>
+            <div class="subtitle">Interactive 3D Vertebral Column Explorer</div>
+
+            <div class="section-title">View Controls</div>
+            <div class="btn-group">
+                <button class="btn" id="btnExplode">Explode View</button>
+                <button class="btn" id="btnRotate">Auto Rotate</button>
+                <button class="btn" id="btnReset">Reset View</button>
+                <button class="btn" id="btnLabels">Toggle Labels</button>
+            </div>
+
+            <button class="btn btn-primary" id="btnQuiz">Start Anatomy Quiz 🧠</button>
+
+            <div class="section-title">Vertebral Regions</div>
+            <div class="vertebrae-list" id="vertebraeList"></div>
+
+            <div class="info-panel" id="infoPanel" style="display: none;">
+                <div class="info-title" id="infoTitle">Select a vertebra</div>
+                <div class="info-text" id="infoDescription"></div>
+                <div class="info-label">Key Features:</div>
+                <div class="info-text" id="infoFeatures"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="quiz-overlay" id="quizOverlay">
+        <div class="quiz-container">
+            <div class="quiz-header">
+                <div class="quiz-title">Vertebral Column Quiz</div>
+                <div class="quiz-progress" id="quizProgress">Question 1/5</div>
+            </div>
+            <div id="quizContent">
+                <div class="question-text" id="questionText"></div>
+                <div class="options" id="optionsContainer"></div>
+                <div class="quiz-actions">
+                    <button class="quiz-btn quiz-btn-next" id="btnNextQuestion">Next Question</button>
+                    <button class="quiz-btn quiz-btn-close" id="btnCloseQuiz">Close Quiz</button>
+                </div>
+            </div>
+            <div id="quizResult" style="display: none;" class="quiz-result">
+                <div class="quiz-score" id="finalScore"></div>
+                <div class="quiz-message" id="resultMessage"></div>
+                <button class="quiz-btn quiz-btn-primary" id="btnRetakeQuiz" style="background: linear-gradient(135deg, var(--accent-cyan), var(--primary-blue)); color: white;">Retake Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Vertebrae Data
+        const vertebraeData = [
+            { name: 'C1 (Atlas)', region: 'Cervical', color: '#4a90e2', description: 'First cervical vertebra that supports the skull and allows nodding motion', features: 'Ring-shaped, no vertebral body, articulates with occipital bone' },
+            { name: 'C2 (Axis)', region: 'Cervical', color: '#4a90e2', description: 'Second cervical vertebra with odontoid process (dens)', features: 'Dens allows rotational movement of the head' },
+            { name: 'C3', region: 'Cervical', color: '#4a90e2', description: 'Third cervical vertebra', features: 'Small body, bifid spinous process, transverse foramen' },
+            { name: 'C4', region: 'Cervical', color: '#4a90e2', description: 'Fourth cervical vertebra', features: 'Similar to C3, supports neck muscles' },
+            { name: 'C5', region: 'Cervical', color: '#4a90e2', description: 'Fifth cervical vertebra', features: 'Common site for nerve root compression' },
+            { name: 'C6', region: 'Cervical', color: '#4a90e2', description: 'Sixth cervical vertebra', features: 'Carotid tubercle landmark on transverse process' },
+            { name: 'C7 (Vertebra Prominens)', region: 'Cervical', color: '#4a90e2', description: 'Seventh cervical vertebra, transition to thoracic', features: 'Long, non-bifid spinous process, easily palpable' },
+            { name: 'T1', region: 'Thoracic', color: '#50c878', description: 'First thoracic vertebra', features: 'Articulates with 1st rib, costal facets present' },
+            { name: 'T2', region: 'Thoracic', color: '#50c878', description: 'Second thoracic vertebra', features: 'Heart-shaped body, costal facets' },
+            { name: 'T3', region: 'Thoracic', color: '#50c878', description: 'Third thoracic vertebra', features: 'Articulates with ribs' },
+            { name: 'T4', region: 'Thoracic', color: '#50c878', description: 'Fourth thoracic vertebra', features: 'Sternal angle level landmark' },
+            { name: 'T5', region: 'Thoracic', color: '#50c878', description: 'Fifth thoracic vertebra', features: 'Mid-thoracic region' },
+            { name: 'T6', region: 'Thoracic', color: '#50c878', description: 'Sixth thoracic vertebra', features: 'Mid-thoracic region' },
+            { name: 'T7', region: 'Thoracic', color: '#50c878', description: 'Seventh thoracic vertebra', features: 'Inferior angle of scapula level' },
+            { name: 'T8', region: 'Thoracic', color: '#50c878', description: 'Eighth thoracic vertebra', features: 'Mid to lower thoracic' },
+            { name: 'T9', region: 'Thoracic', color: '#50c878', description: 'Ninth thoracic vertebra', features: 'Lower thoracic region' },
+            { name: 'T10', region: 'Thoracic', color: '#50c878', description: 'Tenth thoracic vertebra', features: 'Articulates with floating ribs' },
+            { name: 'T11', region: 'Thoracic', color: '#50c878', description: 'Eleventh thoracic vertebra', features: 'Single costal facet' },
+            { name: 'T12', region: 'Thoracic', color: '#50c878', description: 'Twelfth thoracic vertebra, transition to lumbar', features: 'Transitional features, ribs attach' },
+            { name: 'L1', region: 'Lumbar', color: '#ff8c42', description: 'First lumbar vertebra', features: 'Large kidney-shaped body, no costal facets' },
+            { name: 'L2', region: 'Lumbar', color: '#ff8c42', description: 'Second lumbar vertebra', features: 'Supports significant weight' },
+            { name: 'L3', region: 'Lumbar', color: '#ff8c42', description: 'Third lumbar vertebra', features: 'Umbilicus level landmark' },
+            { name: 'L4', region: 'Lumbar', color: '#ff8c42', description: 'Fourth lumbar vertebra', features: 'Iliac crest level, common herniation site' },
+            { name: 'L5', region: 'Lumbar', color: '#ff8c42', description: 'Fifth lumbar vertebra, largest movable', features: 'Wedge-shaped, articulates with sacrum, supports most weight' },
+            { name: 'Sacrum (S1-S5)', region: 'Sacral', color: '#9b59b6', description: 'Five fused vertebrae forming triangular bone', features: 'Connects spine to pelvis, sacral promontory, sacral canal' },
+            { name: 'Coccyx', region: 'Coccygeal', color: '#e74c3c', description: 'Tailbone, 3-5 fused vertebrae', features: 'Attachment for pelvic floor muscles, vestigial tail' }
+        ];
+
+        // Quiz Questions
+        const quizQuestions = [
+            {
+                question: 'How many cervical vertebrae are in the human vertebral column?',
+                options: ['5', '7', '12', '9'],
+                correct: 1
+            },
+            {
+                question: 'Which vertebra is also known as the "Axis"?',
+                options: ['C1', 'C2', 'C7', 'T1'],
+                correct: 1
+            },
+            {
+                question: 'What is the primary function of intervertebral discs?',
+                options: ['Produce blood cells', 'Absorb shock and allow flexibility', 'Store calcium', 'Generate nerve signals'],
+                correct: 1
+            },
+            {
+                question: 'Which region of the spine has the most vertebrae?',
+                options: ['Cervical', 'Thoracic', 'Lumbar', 'Sacral'],
+                correct: 1
+            },
+            {
+                question: 'What is the common name for vertebra C7?',
+                options: ['Atlas', 'Axis', 'Vertebra Prominens', 'Sacral Base'],
+                correct: 2
+            }
+        ];
+
+        // Three.js Setup
+        let scene, camera, renderer, controls;
+        let vertebrae = [];
+        let isExploded = false;
+        let isRotating = false;
+        let selectedVertebra = null;
+        let labelsVisible = false;
+        let labels = [];
+
+        function init() {
+            // Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0d1b2a);
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(15, 10, 25);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            const container = document.getElementById('canvas-container');
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+
+            const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight1.position.set(10, 10, 10);
+            scene.add(directionalLight1);
+
+            const directionalLight2 = new THREE.DirectionalLight(0x00d4ff, 0.3);
+            directionalLight2.position.set(-10, 5, -10);
+            scene.add(directionalLight2);
+
+            // Create Vertebrae
+            createVertebrae();
+
+            // Mouse controls
+            let isDragging = false;
+            let previousMousePosition = { x: 0, y: 0 };
+
+            renderer.domElement.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            renderer.domElement.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    const deltaX = e.clientX - previousMousePosition.x;
+                    const deltaY = e.clientY - previousMousePosition.y;
+
+                    vertebrae.forEach(v => {
+                        v.group.rotation.y += deltaX * 0.01;
+                        v.group.rotation.x += deltaY * 0.01;
+                    });
+
+                    previousMousePosition = { x: e.clientX, y: e.clientY };
+                }
+            });
+
+            renderer.domElement.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
+            // Zoom
+            renderer.domElement.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                camera.position.z += e.deltaY * 0.01;
+                camera.position.z = Math.max(10, Math.min(50, camera.position.z));
+            });
+
+            // Click to select
+            renderer.domElement.addEventListener('click', (e) => {
+                if (isDragging) return;
+                
+                const mouse = new THREE.Vector2();
+                const rect = renderer.domElement.getBoundingClientRect();
+                mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+                mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+                const raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(mouse, camera);
+
+                const meshes = vertebrae.map(v => v.mesh);
+                const intersects = raycaster.intersectObjects(meshes);
+
+                if (intersects.length > 0) {
+                    const clickedMesh = intersects[0].object;
+                    const vertebra = vertebrae.find(v => v.mesh === clickedMesh);
+                    selectVertebra(vertebra);
+                }
+            });
+
+            document.getElementById('loading').style.display = 'none';
+            animate();
+        }
+
+        function createVertebrae() {
+            vertebraeData.forEach((data, index) => {
+                const geometry = createVertebraGeometry(data.region);
+                const material = new THREE.MeshPhongMaterial({
+                    color: data.color,
+                    shininess: 30,
+                    transparent: true,
+                    opacity: 0.9
+                });
+
+                const mesh = new THREE.Mesh(geometry, material);
+                const group = new THREE.Group();
+                group.add(mesh);
+
+                // Position vertebrae vertically
+                const spacing = 1.2;
+                group.position.y = (vertebraeData.length / 2 - index) * spacing;
+
+                scene.add(group);
+
+                vertebrae.push({
+                    mesh,
+                    group,
+                    data,
+                    originalY: group.position.y,
+                    originalMaterial: material.clone()
+                });
+            });
+
+            // Populate vertebrae list
+            const list = document.getElementById('vertebraeList');
+            vertebraeData.forEach((data, index) => {
+                const item = document.createElement('div');
+                item.className = 'vertebra-item';
+                item.innerHTML = `
+                    <div class="vertebra-color" style="background: ${data.color}"></div>
+                    <div class="vertebra-name">${data.name}</div>
+                `;
+                item.addEventListener('click', () => selectVertebra(vertebrae[index]));
+                list.appendChild(item);
+            });
+        }
+
+        function createVertebraGeometry(region) {
+            // Different shapes for different regions
+            if (region === 'Cervical') {
+                return new THREE.CylinderGeometry(0.4, 0.5, 0.8, 8);
+            } else if (region === 'Thoracic') {
+                return new THREE.CylinderGeometry(0.5, 0.6, 0.9, 8);
+            } else if (region === 'Lumbar') {
+                return new THREE.CylinderGeometry(0.6, 0.7, 1.0, 8);
+            } else if (region === 'Sacral') {
+                return new THREE.ConeGeometry(0.8, 1.5, 6);
+            } else { // Coccygeal
+                return new THREE.SphereGeometry(0.3, 8, 8);
+            }
+        }
+
+        function selectVertebra(vertebra) {
+            // Reset previous selection
+            if (selectedVertebra) {
+                selectedVertebra.mesh.material.emissive.setHex(0x000000);
+                const items = document.querySelectorAll('.vertebra-item');
+                items.forEach(item => item.classList.remove('selected'));
+            }
+
+            selectedVertebra = vertebra;
+            vertebra.mesh.material.emissive.setHex(0x00d4ff);
+            vertebra.mesh.material.emissiveIntensity = 0.5;
+
+            // Update UI
+            const items = document.querySelectorAll('.vertebra-item');
+            const index = vertebrae.indexOf(vertebra);
+            items[index].classList.add('selected');
+
+            // Show info panel
+            document.getElementById('infoPanel').style.display = 'block';
+            document.getElementById('infoTitle').textContent = vertebra.data.name;
+            document.getElementById('infoDescription').textContent = vertebra.data.description;
+            document.getElementById('infoFeatures').textContent = vertebra.data.features;
+
+            // Focus camera on selected vertebra
+            camera.lookAt(vertebra.group.position);
+        }
+
+        function toggleExplode() {
+            isExploded = !isExploded;
+            const btn = document.getElementById('btnExplode');
+            btn.classList.toggle('active');
+
+            vertebrae.forEach((v, index) => {
+                const targetY = isExploded ? v.originalY + (index - vertebrae.length / 2) * 2 : v.originalY;
+                animatePosition(v.group, targetY);
+            });
+        }
+
+        function animatePosition(object, targetY) {
+            const duration = 1000;
+            const startY = object.position.y;
+            const startTime = Date.now();
+
+            function update() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = easeInOutCubic(progress);
+
+                object.position.y = startY + (targetY - startY) * eased;
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            update();
+        }
+
+        function easeInOutCubic(t) {
+            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        }
+
+        function toggleRotate() {
+            isRotating = !isRotating;
+            document.getElementById('btnRotate').classList.toggle('active');
+        }
+
+        function resetView() {
+            camera.position.set(15, 10, 25);
+            vertebrae.forEach(v => {
+                v.group.rotation.set(0, 0, 0);
+                v.group.position.y = v.originalY;
+            });
+            isExploded = false;
+            isRotating = false;
+            document.getElementById('btnExplode').classList.remove('active');
+            document.getElementById('btnRotate').classList.remove('active');
+        }
+
+        function toggleLabels() {
+            labelsVisible = !labelsVisible;
+            document.getElementById('btnLabels').classList.toggle('active');
+            // Label implementation would require CSS3DRenderer for proper 3D labels
+            // Simplified version here
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (isRotating) {
+                vertebrae.forEach(v => {
+                    v.group.rotation.y += 0.005;
+                });
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // Quiz Functionality
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedAnswer = null;
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            selectedAnswer = null;
+            document.getElementById('quizOverlay').classList.add('active');
+            document.getElementById('quizContent').style.display = 'block';
+            document.getElementById('quizResult').style.display = 'none';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = quizQuestions[currentQuestion];
+            document.getElementById('questionText').textContent = question.question;
+            document.getElementById('quizProgress').textContent = `Question ${currentQuestion + 1}/${quizQuestions.length}`;
+
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            selectedAnswer = null;
+
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.textContent = option;
+                optionDiv.addEventListener('click', () => selectAnswer(index));
+                optionsContainer.appendChild(optionDiv);
+            });
+
+            document.getElementById('btnNextQuestion').textContent = 
+                currentQuestion === quizQuestions.length - 1 ? 'Finish Quiz' : 'Next Question';
+        }
+
+        function selectAnswer(index) {
+            const options = document.querySelectorAll('.option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            options[index].classList.add('selected');
+            selectedAnswer = index;
+        }
+
+        function nextQuestion() {
+            if (selectedAnswer === null) {
+                alert('Please select an answer!');
+                return;
+            }
+
+            const question = quizQuestions[currentQuestion];
+            const options = document.querySelectorAll('.option');
+
+            // Show correct/incorrect
+            options[question.correct].classList.add('correct');
+            if (selectedAnswer !== question.correct) {
+                options[selectedAnswer].classList.add('incorrect');
+            } else {
+                score++;
+            }
+
+            setTimeout(() => {
+                currentQuestion++;
+                if (currentQuestion < quizQuestions.length) {
+                    showQuestion();
+                } else {
+                    showResults();
+                }
+            }, 1500);
+        }
+
+        function showResults() {
+            document.getElementById('quizContent').style.display = 'none';
+            document.getElementById('quizResult').style.display = 'block';
+
+            const percentage = (score / quizQuestions.length) * 100;
+            document.getElementById('finalScore').textContent = `${score}/${quizQuestions.length}`;
+
+            let message = '';
+            if (percentage === 100) {
+                message = '🌟 Perfect! You\'re a vertebral column expert!';
+            } else if (percentage >= 80) {
+                message = '🎉 Excellent work! Great understanding of spinal anatomy!';
+            } else if (percentage >= 60) {
+                message = '👍 Good job! Keep studying to master it!';
+            } else {
+                message = '📚 Keep learning! Review the 3D model and try again!';
+            }
+
+            document.getElementById('resultMessage').textContent = message;
+        }
+
+        function closeQuiz() {
+            document.getElementById('quizOverlay').classList.remove('active');
+        }
+
+        // Event Listeners
+        document.getElementById('btnExplode').addEventListener('click', toggleExplode);
+        document.getElementById('btnRotate').addEventListener('click', toggleRotate);
+        document.getElementById('btnReset').addEventListener('click', resetView);
+        document.getElementById('btnLabels').addEventListener('click', toggleLabels);
+        document.getElementById('btnQuiz').addEventListener('click', startQuiz);
+        document.getElementById('btnNextQuestion').addEventListener('click', nextQuestion);
+        document.getElementById('btnCloseQuiz').addEventListener('click', closeQuiz);
+        document.getElementById('btnRetakeQuiz').addEventListener('click', startQuiz);
+
+        // Window resize
+        window.addEventListener('resize', () => {
+            const container = document.getElementById('canvas-container');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+
+        // Initialize
+        init();
+    </script>
+</body>
+</html>
