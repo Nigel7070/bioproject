@@ -564,7 +564,7 @@
                     </div>
                 </div>
                 <div class="controls">
-                    <button class="btn" onclick="toggleLabels()"><span>🏷️ Toggle Labels</span></button>
+                    <button class="btn" onclick="toggleLabels()"><span id="labelBtn">🏷️ Show Labels</span></button>
                     <button class="btn" onclick="resetCamera()"><span>🔄 Reset View</span></button>
                     <button class="btn" onclick="toggleRotation()"><span id="rotateBtn">⏸️ Pause Rotation</span></button>
                 </div>
@@ -572,9 +572,15 @@
             
             <div class="info-panel">
                 <h2>Vertebral Anatomy</h2>
-                <p style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 20px;">
+                <p style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 15px;">
                     The vertebra is a fundamental building block of the spinal column, providing structural support and protecting the spinal cord.
                 </p>
+                
+                <div style="background: rgba(139, 92, 246, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 3px solid var(--accent-purple);">
+                    <p style="color: var(--text-secondary); font-size: 0.95rem; margin: 0;">
+                        💡 <strong>Tip:</strong> Click "Toggle Labels" to see numbered markers on the model. Refer to the legend below to identify each part.
+                    </p>
+                </div>
                 
                 <ul class="anatomy-list">
                     <li><strong>Vertebral Column:</strong> 33 vertebrae total (7 cervical, 12 thoracic, 5 lumbar, 5 sacral, 4 coccygeal)</li>
@@ -672,7 +678,7 @@
         
         // Three.js setup
         let scene, camera, renderer, controls, vertebraModel;
-        let labelsVisible = true;
+        let labelsVisible = false; // Start with labels OFF for clean view
         let autoRotate = true;
         const labels = [];
         const userAnswers = new Array(5).fill(null);
@@ -762,7 +768,14 @@
                     });
                     
                     scene.add(vertebraModel);
-                    createLabels();
+                    
+                    // Calculate positions after model is loaded
+                    const box = new THREE.Box3().setFromObject(vertebraModel);
+                    const modelCenter = box.getCenter(new THREE.Vector3());
+                    const modelSize = box.getSize(new THREE.Vector3());
+                    
+                    // Create labels with positions relative to model
+                    createLabelsFromModel(modelCenter, modelSize);
                 },
                 function (xhr) {
                     console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -786,16 +799,24 @@
             animate();
         }
         
-        function createLabels() {
-            // Define label positions based on typical vertebra anatomy
+        function createLabelsFromModel(center, size) {
+            // Define label positions relative to model bounds
+            // Spread them around the model intelligently
             const labelData = [
-                { num: 1, name: 'Vertebral Body', position: new THREE.Vector3(0, -0.8, 1.2) },
-                { num: 2, name: 'Spinous Process', position: new THREE.Vector3(0, 0.5, -1.8) },
-                { num: 3, name: 'Transverse Process', position: new THREE.Vector3(1.5, 0, 0.2) },
-                { num: 4, name: 'Vertebral Foramen', position: new THREE.Vector3(0, 0, 0) },
-                { num: 5, name: 'Superior Articular', position: new THREE.Vector3(0.7, 1.2, -0.4) },
-                { num: 6, name: 'Pedicles', position: new THREE.Vector3(1.0, 0, 0.6) },
-                { num: 7, name: 'Laminae', position: new THREE.Vector3(-0.5, 0.4, -1.0) }
+                { num: 1, name: 'Vertebral Body', 
+                  position: new THREE.Vector3(center.x, center.y - size.y * 0.3, center.z + size.z * 0.6) },
+                { num: 2, name: 'Spinous Process', 
+                  position: new THREE.Vector3(center.x, center.y + size.y * 0.2, center.z - size.z * 0.6) },
+                { num: 3, name: 'Transverse Process', 
+                  position: new THREE.Vector3(center.x + size.x * 0.5, center.y, center.z) },
+                { num: 4, name: 'Vertebral Foramen', 
+                  position: new THREE.Vector3(center.x, center.y, center.z + size.z * 0.2) },
+                { num: 5, name: 'Superior Articular', 
+                  position: new THREE.Vector3(center.x + size.x * 0.3, center.y + size.y * 0.4, center.z - size.z * 0.2) },
+                { num: 6, name: 'Pedicles', 
+                  position: new THREE.Vector3(center.x + size.x * 0.4, center.y - size.y * 0.1, center.z + size.z * 0.3) },
+                { num: 7, name: 'Laminae', 
+                  position: new THREE.Vector3(center.x - size.x * 0.2, center.y + size.y * 0.1, center.z - size.z * 0.4) }
             ];
             
             const container = document.getElementById('canvas-container');
@@ -820,6 +841,11 @@
             
             // Create legend in the info panel
             createLegend(labelData);
+        }
+        
+        function createLabels() {
+            // Fallback if called without model data
+            createLabelsFromModel(new THREE.Vector3(0, 0, 0), new THREE.Vector3(2, 2, 2));
         }
         
         function createLegend(labelData) {
@@ -876,6 +902,8 @@
             labels.forEach(label => {
                 label.marker.style.display = labelsVisible ? 'flex' : 'none';
             });
+            // Update button text
+            document.getElementById('labelBtn').textContent = labelsVisible ? '🏷️ Hide Labels' : '🏷️ Show Labels';
         }
         
         function resetCamera() {
