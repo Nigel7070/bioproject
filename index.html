@@ -398,45 +398,119 @@
             background-clip: text;
         }
         
-        /* Label styles for 3D model */
-        .label {
+        /* Numbered marker styles for 3D model */
+        .label-marker {
             position: absolute;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--secondary-teal));
+            color: #0a0e1a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.2rem;
+            font-family: 'Orbitron', sans-serif;
+            pointer-events: auto;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 
+                0 0 20px rgba(0, 217, 255, 0.8),
+                0 0 40px rgba(0, 217, 255, 0.4),
+                0 4px 10px rgba(0, 0, 0, 0.5);
+            border: 3px solid rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+            animation: markerPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes markerPulse {
+            0%, 100% { 
+                box-shadow: 
+                    0 0 20px rgba(0, 217, 255, 0.8),
+                    0 0 40px rgba(0, 217, 255, 0.4),
+                    0 4px 10px rgba(0, 0, 0, 0.5);
+            }
+            50% { 
+                box-shadow: 
+                    0 0 30px rgba(0, 217, 255, 1),
+                    0 0 60px rgba(0, 217, 255, 0.6),
+                    0 4px 10px rgba(0, 0, 0, 0.5);
+            }
+        }
+        
+        .label-marker:hover {
+            transform: translate(-50%, -50%) scale(1.3) !important;
+            box-shadow: 
+                0 0 40px rgba(0, 217, 255, 1),
+                0 0 80px rgba(0, 217, 255, 0.8),
+                0 6px 15px rgba(0, 0, 0, 0.7);
+        }
+        
+        .label-marker::after {
+            content: attr(data-label);
+            position: absolute;
+            bottom: -35px;
+            left: 50%;
+            transform: translateX(-50%);
             background: rgba(0, 217, 255, 0.95);
             color: #0a0e1a;
-            padding: 8px 16px;
-            border-radius: 8px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
             font-weight: 700;
-            font-size: 0.85rem;
-            pointer-events: none;
             white-space: nowrap;
-            box-shadow: 
-                0 0 20px rgba(0, 217, 255, 0.6),
-                0 4px 6px rgba(0, 0, 0, 0.3);
-            border: 2px solid var(--secondary-teal);
-            font-family: 'Orbitron', sans-serif;
-            letter-spacing: 0.5px;
-            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
             transition: opacity 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--secondary-teal);
         }
         
-        .label-dot {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: var(--primary-cyan);
-            border: 2px solid var(--secondary-teal);
+        .label-marker:hover::after {
+            opacity: 1;
+        }
+        
+        .label-legend {
+            background: rgba(0, 217, 255, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0, 217, 255, 0.2);
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .legend-item:hover {
+            background: rgba(0, 217, 255, 0.1);
+            transform: translateX(8px);
+        }
+        
+        .legend-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--secondary-teal));
+            color: #0a0e1a;
             border-radius: 50%;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-            z-index: 99;
-            box-shadow: 
-                0 0 10px rgba(0, 217, 255, 0.8),
-                0 0 20px rgba(0, 217, 255, 0.4);
-            transition: opacity 0.3s ease;
-        }
-        
-        .label-line {
-            pointer-events: none;
+            font-weight: 900;
+            font-size: 0.9rem;
+            margin-right: 12px;
+            font-family: 'Orbitron', sans-serif;
+            box-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.8);
         }
         
         .loading {
@@ -503,13 +577,9 @@
                 </p>
                 
                 <ul class="anatomy-list">
-                    <li><strong>Vertebral Body:</strong> Main weight-bearing structure</li>
-                    <li><strong>Vertebral Foramen:</strong> Passage for spinal cord</li>
-                    <li><strong>Spinous Process:</strong> Posterior projection for muscle attachment</li>
-                    <li><strong>Transverse Processes:</strong> Lateral projections</li>
-                    <li><strong>Superior Articular Process:</strong> Joint surfaces</li>
-                    <li><strong>Pedicles:</strong> Connect body to posterior arch</li>
-                    <li><strong>Laminae:</strong> Form posterior wall of vertebral foramen</li>
+                    <li><strong>Vertebral Column:</strong> 33 vertebrae total (7 cervical, 12 thoracic, 5 lumbar, 5 sacral, 4 coccygeal)</li>
+                    <li><strong>Main Functions:</strong> Supports body weight, protects spinal cord, allows movement</li>
+                    <li><strong>Intervertebral Discs:</strong> Cushion between vertebral bodies</li>
                 </ul>
                 
                 <div class="instructions">
@@ -717,63 +787,59 @@
         }
         
         function createLabels() {
-            // Define label positions with better spacing around the model
+            // Define label positions based on typical vertebra anatomy
             const labelData = [
-                { name: 'Vertebral Body', position: new THREE.Vector3(0, -0.8, 1.5), offset: { x: -80, y: 40 } },
-                { name: 'Spinous Process', position: new THREE.Vector3(0, 0.3, -2.0), offset: { x: 0, y: -60 } },
-                { name: 'Transverse Process', position: new THREE.Vector3(1.8, 0, 0), offset: { x: 100, y: 0 } },
-                { name: 'Vertebral Foramen', position: new THREE.Vector3(0, -0.2, 0), offset: { x: -120, y: -40 } },
-                { name: 'Superior Articular', position: new THREE.Vector3(0.8, 1.3, -0.5), offset: { x: 80, y: -80 } },
-                { name: 'Pedicles', position: new THREE.Vector3(1.2, -0.3, 0.8), offset: { x: 100, y: 60 } },
-                { name: 'Laminae', position: new THREE.Vector3(-0.3, 0.5, -1.2), offset: { x: -100, y: -40 } }
+                { num: 1, name: 'Vertebral Body', position: new THREE.Vector3(0, -0.8, 1.2) },
+                { num: 2, name: 'Spinous Process', position: new THREE.Vector3(0, 0.5, -1.8) },
+                { num: 3, name: 'Transverse Process', position: new THREE.Vector3(1.5, 0, 0.2) },
+                { num: 4, name: 'Vertebral Foramen', position: new THREE.Vector3(0, 0, 0) },
+                { num: 5, name: 'Superior Articular', position: new THREE.Vector3(0.7, 1.2, -0.4) },
+                { num: 6, name: 'Pedicles', position: new THREE.Vector3(1.0, 0, 0.6) },
+                { num: 7, name: 'Laminae', position: new THREE.Vector3(-0.5, 0.4, -1.0) }
             ];
             
             const container = document.getElementById('canvas-container');
             
-            labelData.forEach((data, index) => {
-                // Create label container
-                const labelDiv = document.createElement('div');
-                labelDiv.className = 'label';
-                labelDiv.textContent = data.name;
-                labelDiv.style.display = labelsVisible ? 'block' : 'none';
+            labelData.forEach((data) => {
+                // Create numbered marker
+                const marker = document.createElement('div');
+                marker.className = 'label-marker';
+                marker.textContent = data.num;
+                marker.style.display = labelsVisible ? 'flex' : 'none';
+                marker.setAttribute('data-label', data.name);
                 
-                // Create anchor dot
-                const dotDiv = document.createElement('div');
-                dotDiv.className = 'label-dot';
-                dotDiv.style.display = labelsVisible ? 'block' : 'none';
-                
-                // Create connecting line (SVG)
-                const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                svg.setAttribute('class', 'label-line');
-                svg.style.display = labelsVisible ? 'block' : 'none';
-                svg.style.position = 'absolute';
-                svg.style.top = '0';
-                svg.style.left = '0';
-                svg.style.width = '100%';
-                svg.style.height = '100%';
-                svg.style.pointerEvents = 'none';
-                svg.style.zIndex = '10';
-                
-                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line.setAttribute('stroke', '#00d9ff');
-                line.setAttribute('stroke-width', '2');
-                line.setAttribute('stroke-dasharray', '5,5');
-                line.setAttribute('opacity', '0.6');
-                svg.appendChild(line);
-                
-                container.appendChild(svg);
-                container.appendChild(dotDiv);
-                container.appendChild(labelDiv);
+                container.appendChild(marker);
                 
                 labels.push({
-                    div: labelDiv,
-                    dot: dotDiv,
-                    line: line,
-                    svg: svg,
+                    marker: marker,
                     position: data.position,
-                    offset: data.offset
+                    num: data.num,
+                    name: data.name
                 });
             });
+            
+            // Create legend in the info panel
+            createLegend(labelData);
+        }
+        
+        function createLegend(labelData) {
+            const legend = document.createElement('div');
+            legend.className = 'label-legend';
+            legend.innerHTML = '<h3 style="color: var(--primary-cyan); margin-bottom: 15px; font-size: 1.2rem;">🔢 Part Labels</h3>';
+            
+            labelData.forEach(data => {
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                item.innerHTML = `<span class="legend-number">${data.num}</span> ${data.name}`;
+                legend.appendChild(item);
+            });
+            
+            // Insert legend after anatomy list
+            const infoPanel = document.querySelector('.info-panel');
+            const anatomyList = document.querySelector('.anatomy-list');
+            if (anatomyList) {
+                anatomyList.parentNode.insertBefore(legend, anatomyList);
+            }
         }
         
         function updateLabels() {
@@ -783,37 +849,24 @@
                 vector.project(camera);
                 
                 // Convert to pixel coordinates
-                const anchorX = (vector.x * 0.5 + 0.5) * renderer.domElement.clientWidth;
-                const anchorY = (-(vector.y) * 0.5 + 0.5) * renderer.domElement.clientHeight;
+                const x = (vector.x * 0.5 + 0.5) * renderer.domElement.clientWidth;
+                const y = (-(vector.y) * 0.5 + 0.5) * renderer.domElement.clientHeight;
                 
-                // Apply offset for label position
-                const labelX = anchorX + label.offset.x;
-                const labelY = anchorY + label.offset.y;
+                // Position the marker
+                label.marker.style.left = x + 'px';
+                label.marker.style.top = y + 'px';
                 
-                // Position the anchor dot
-                label.dot.style.left = anchorX + 'px';
-                label.dot.style.top = anchorY + 'px';
+                // Scale marker based on depth (closer = bigger)
+                const scale = Math.max(0.6, Math.min(1.2, 1.0 - vector.z * 0.3));
+                label.marker.style.transform = `translate(-50%, -50%) scale(${scale})`;
                 
-                // Position the label
-                label.div.style.left = labelX + 'px';
-                label.div.style.top = labelY + 'px';
-                label.div.style.transform = 'translate(-50%, -50%)';
-                
-                // Update connecting line
-                label.line.setAttribute('x1', anchorX);
-                label.line.setAttribute('y1', anchorY);
-                label.line.setAttribute('x2', labelX);
-                label.line.setAttribute('y2', labelY);
-                
-                // Hide labels that are behind the model
-                if (vector.z > 1) {
-                    label.div.style.opacity = '0.3';
-                    label.dot.style.opacity = '0.2';
-                    label.line.setAttribute('opacity', '0.1');
+                // Hide markers that are behind the model or off-screen
+                if (vector.z > 1 || x < 0 || x > renderer.domElement.clientWidth || y < 0 || y > renderer.domElement.clientHeight) {
+                    label.marker.style.opacity = '0';
+                    label.marker.style.pointerEvents = 'none';
                 } else {
-                    label.div.style.opacity = '1';
-                    label.dot.style.opacity = '1';
-                    label.line.setAttribute('opacity', '0.6');
+                    label.marker.style.opacity = vector.z > 0.5 ? '0.4' : '1';
+                    label.marker.style.pointerEvents = 'auto';
                 }
             });
         }
@@ -821,9 +874,7 @@
         function toggleLabels() {
             labelsVisible = !labelsVisible;
             labels.forEach(label => {
-                label.div.style.display = labelsVisible ? 'block' : 'none';
-                label.dot.style.display = labelsVisible ? 'block' : 'none';
-                label.svg.style.display = labelsVisible ? 'block' : 'none';
+                label.marker.style.display = labelsVisible ? 'flex' : 'none';
             });
         }
         
