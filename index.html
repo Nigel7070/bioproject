@@ -506,4 +506,505 @@
             { name: 'T6', region: 'Thoracic', color: '#50c878', description: 'Sixth thoracic vertebra', features: 'Mid-thoracic region' },
             { name: 'T7', region: 'Thoracic', color: '#50c878', description: 'Seventh thoracic vertebra', features: 'Inferior angle of scapula level' },
             { name: 'T8', region: 'Thoracic', color: '#50c878', description: 'Eighth thoracic vertebra', features: 'Mid to lower thoracic' },
-            { name: 'T
+            { name: 'T9', region: 'Thoracic', color: '#50c878', description: 'Ninth thoracic vertebra', features: 'Lower thoracic region' },
+            { name: 'T10', region: 'Thoracic', color: '#50c878', description: 'Tenth thoracic vertebra', features: 'Articulates with floating ribs' },
+            { name: 'T11', region: 'Thoracic', color: '#50c878', description: 'Eleventh thoracic vertebra', features: 'Single costal facet' },
+            { name: 'T12', region: 'Thoracic', color: '#50c878', description: 'Twelfth thoracic vertebra, transition to lumbar', features: 'Transitional features, ribs attach' },
+            { name: 'L1', region: 'Lumbar', color: '#ff8c42', description: 'First lumbar vertebra', features: 'Large kidney-shaped body, no costal facets' },
+            { name: 'L2', region: 'Lumbar', color: '#ff8c42', description: 'Second lumbar vertebra', features: 'Supports significant weight' },
+            { name: 'L3', region: 'Lumbar', color: '#ff8c42', description: 'Third lumbar vertebra', features: 'Umbilicus level landmark' },
+            { name: 'L4', region: 'Lumbar', color: '#ff8c42', description: 'Fourth lumbar vertebra', features: 'Iliac crest level, common herniation site' },
+            { name: 'L5', region: 'Lumbar', color: '#ff8c42', description: 'Fifth lumbar vertebra, largest movable', features: 'Wedge-shaped, articulates with sacrum, supports most weight' },
+            { name: 'Sacrum (S1-S5)', region: 'Sacral', color: '#9b59b6', description: 'Five fused vertebrae forming triangular bone', features: 'Connects spine to pelvis, sacral promontory, sacral canal' },
+            { name: 'Coccyx', region: 'Coccygeal', color: '#e74c3c', description: 'Tailbone, 3-5 fused vertebrae', features: 'Attachment for pelvic floor muscles, vestigial tail' }
+        ];
+
+        const quizQuestions = [
+            {
+                question: 'How many cervical vertebrae are in the human vertebral column?',
+                options: ['5', '7', '12', '9'],
+                correct: 1
+            },
+            {
+                question: 'Which vertebra is also known as the "Axis"?',
+                options: ['C1', 'C2', 'C7', 'T1'],
+                correct: 1
+            },
+            {
+                question: 'What is the primary function of intervertebral discs?',
+                options: ['Produce blood cells', 'Absorb shock and allow flexibility', 'Store calcium', 'Generate nerve signals'],
+                correct: 1
+            },
+            {
+                question: 'Which region of the spine has the most vertebrae?',
+                options: ['Cervical', 'Thoracic', 'Lumbar', 'Sacral'],
+                correct: 1
+            },
+            {
+                question: 'What is the common name for vertebra C7?',
+                options: ['Atlas', 'Axis', 'Vertebra Prominens', 'Sacral Base'],
+                correct: 2
+            }
+        ];
+
+        // Three.js Setup
+        let scene, camera, renderer, controls;
+        let vertebrae = [];
+        let isExploded = false;
+        let isRotating = false;
+        let selectedVertebra = null;
+        let vertebraModelPlaceholder = null; 
+
+        // --- 1. MODEL LOADING LOGIC (Updated for Option B) ---
+        function loadBaseModel(callback) {
+            const loader = new THREE.GLTFLoader();
+            document.getElementById('loading').style.display = 'block'; 
+
+            // ⚠️ CRITICAL CHANGE FOR OPTION B: PATH MATCHES YOUR UPLOADED FILE NAME ⚠️
+            loader.load('thoracic_and_lumbar_vertebral_column.glb', (gltf) => {
+                vertebraModelPlaceholder = gltf.scene; 
+                document.getElementById('loading').style.display = 'none';
+                console.log('3D model loaded successfully!');
+                callback(); 
+            }, 
+            // Progress callback
+            (xhr) => {
+                const percent = Math.round(xhr.loaded / xhr.total * 100);
+                document.getElementById('loading').querySelector('.loading-text').textContent = `Loading 3D Vertebra Model... ${percent}%`;
+            },
+            // Error callback
+            (error) => {
+                console.error('Error loading 3D model. Falling back to simulated geometry.', error);
+                document.getElementById('loading').style.display = 'none';
+                callback(); 
+            });
+        }
+        
+        // --- 2. FALLBACK/SIMULATED GEOMETRY (If GLB fails) ---
+        function createVertebraGeometry(region) {
+            let radius = 1.0, tube = 0.3, radialSegments = 16, tubularSegments = 40;
+
+            if (region === 'Cervical') {
+                return new THREE.TorusKnotGeometry(radius * 0.4, tube * 0.3, tubularSegments, radialSegments);
+            } else if (region === 'Thoracic') {
+                return new THREE.TorusKnotGeometry(radius * 0.5, tube * 0.3, tubularSegments, radialSegments);
+            } else if (region === 'Lumbar') {
+                return new THREE.TorusKnotGeometry(radius * 0.6, tube * 0.3, tubularSegments, radialSegments);
+            } else if (region === 'Sacral') {
+                return new THREE.ConeGeometry(radius * 0.8, 2.0, 12, 1);
+            } else { 
+                return new THREE.SphereGeometry(0.5, 16, 16);
+            }
+        }
+
+        // --- 3. CORE INITIALIZATION ---
+        function init() {
+            // Scene & Renderer Setup
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a141f); 
+            
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(12, 0, 30); 
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.outputEncoding = THREE.sRGBEncoding; 
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.0;
+            renderer.shadowMap.enabled = true; 
+
+            const container = document.getElementById('canvas-container');
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
+            
+            // Lights (for PBR realism)
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+
+            const keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
+            keyLight.position.set(15, 20, 15);
+            keyLight.castShadow = true;
+            keyLight.shadow.mapSize.width = 1024;
+            keyLight.shadow.mapSize.height = 1024;
+            scene.add(keyLight);
+            
+            // Ground Plane 
+            const ground = new THREE.Mesh(
+                new THREE.PlaneGeometry(100, 100),
+                new THREE.MeshStandardMaterial({ color: 0x0a141f, roughness: 1.0, metalness: 0.0 })
+            );
+            ground.rotation.x = -Math.PI / 2;
+            ground.position.y = -27; 
+            ground.receiveShadow = true;
+            scene.add(ground);
+
+            // Start the model loading process
+            loadBaseModel(() => {
+                createVertebrae();
+                setupInteractions();
+                animate();
+            });
+        }
+        
+        // --- 4. CORE VERTEBRA CREATION (Scale and Rotation Adjusted) ---
+        function createVertebrae() {
+            const hasModel = vertebraModelPlaceholder !== null;
+            const spacing = 1.8; 
+            const totalHeight = vertebraeData.length * spacing;
+
+            const centralGroup = new THREE.Group();
+            scene.add(centralGroup);
+
+            vertebraeData.forEach((data, index) => {
+                let vertebraMeshGroup;
+                
+                const boneMaterial = new THREE.MeshStandardMaterial({
+                    color: new THREE.Color(0xcccccc),
+                    roughness: 0.8, 
+                    metalness: 0.1, 
+                    emissive: 0x000000,
+                    transparent: true,
+                    opacity: 0.95
+                });
+                
+                boneMaterial.color.multiplyScalar(new THREE.Color(data.color).getHex() / 0xffffff);
+
+                if (hasModel) {
+                    // Use the loaded GLB model
+                    vertebraMeshGroup = vertebraModelPlaceholder.clone();
+                    
+                    vertebraMeshGroup.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material = boneMaterial;
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                        }
+                    });
+                    
+                    // ⚠️ Suggested Scale/Rotation Adjustments 
+                    // These values are often needed when loading a complex spine model
+                    vertebraMeshGroup.scale.set(0.35, 0.35, 0.35); // Reduced scale for complex model
+                    
+                    // Rotate 90 degrees forward to stand upright (if it was lying flat)
+                    vertebraMeshGroup.rotation.x = -Math.PI / 2; 
+                    
+                    // Rotate slightly for a better starting view
+                    vertebraMeshGroup.rotation.y = -Math.PI / 4; 
+
+                } else {
+                    // Fallback
+                    const geometry = createVertebraGeometry(data.region); 
+                    vertebraMeshGroup = new THREE.Group();
+                    const mesh = new THREE.Mesh(geometry, boneMaterial);
+                    mesh.castShadow = true;
+                    mesh.receiveShadow = true;
+                    vertebraMeshGroup.add(mesh);
+                }
+                
+                const group = new THREE.Group();
+                group.add(vertebraMeshGroup);
+
+                // Position vertebrae vertically
+                group.position.y = (totalHeight / 2) - (index * spacing);
+                centralGroup.add(group);
+
+                // Find the direct mesh child for selection/highlighting
+                let actualMesh = null;
+                vertebraMeshGroup.traverse((child) => {
+                    if (child.isMesh) {
+                        actualMesh = child;
+                    }
+                });
+
+                vertebrae.push({
+                    mesh: actualMesh || vertebraMeshGroup, 
+                    group,
+                    data,
+                    originalY: group.position.y,
+                    originalMaterial: boneMaterial.clone() 
+                });
+            });
+
+            // Populate vertebrae list
+            const list = document.getElementById('vertebraeList');
+            vertebraeData.forEach((data, index) => {
+                const item = document.createElement('div');
+                item.className = 'vertebra-item';
+                item.innerHTML = `
+                    <div class="vertebra-color" style="background: ${data.color}"></div>
+                    <div class="vertebra-name">${data.name}</div>
+                `;
+                item.addEventListener('click', () => selectVertebra(vertebrae[index]));
+                list.appendChild(item);
+            });
+        }
+        
+        // --- 5. INTERACTION & ANIMATION (Standard Code) ---
+        
+        function setupInteractions() {
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true; 
+            controls.dampingFactor = 0.05;
+            controls.minDistance = 15;
+            controls.maxDistance = 50;
+
+            renderer.domElement.addEventListener('click', (e) => {
+                const mouse = new THREE.Vector2();
+                const rect = renderer.domElement.getBoundingClientRect();
+                mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+                mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+                const raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(mouse, camera);
+
+                const meshes = vertebrae.map(v => v.mesh).filter(m => m !== null);
+                const intersects = raycaster.intersectObjects(meshes, true);
+
+                if (intersects.length > 0) {
+                    const clickedMesh = intersects[0].object;
+                    let foundVertebra = vertebrae.find(v => v.mesh === clickedMesh);
+
+                    if (!foundVertebra) {
+                        foundVertebra = vertebrae.find(v => {
+                            let current = clickedMesh;
+                            while (current) {
+                                if (current === v.group) return true;
+                                current = current.parent;
+                            }
+                            return false;
+                        });
+                    }
+                    selectVertebra(foundVertebra);
+                } else {
+                    selectVertebra(null); 
+                }
+            });
+            
+            // Button handlers
+            document.getElementById('btnExplode').addEventListener('click', toggleExplode);
+            document.getElementById('btnRotate').addEventListener('click', toggleRotate);
+            document.getElementById('btnReset').addEventListener('click', resetView);
+            
+            window.addEventListener('resize', onWindowResize, false);
+        }
+
+        function selectVertebra(vertebra) {
+            if (selectedVertebra) {
+                const material = selectedVertebra.mesh.material;
+                material.emissive.setHex(0x000000);
+                material.emissiveIntensity = 0.0;
+            }
+            const items = document.querySelectorAll('.vertebra-item');
+            items.forEach(item => item.classList.remove('selected'));
+            document.getElementById('infoPanel').style.display = 'none';
+
+            if (vertebra) {
+                selectedVertebra = vertebra;
+                const material = vertebra.mesh.material;
+                material.emissive.setHex(0x00d4ff);
+                material.emissiveIntensity = 0.5;
+
+                const index = vertebrae.indexOf(vertebra);
+                items[index].classList.add('selected');
+
+                document.getElementById('infoPanel').style.display = 'block';
+                document.getElementById('infoTitle').textContent = vertebra.data.name;
+                document.getElementById('infoDescription').textContent = vertebra.data.description;
+                document.getElementById('infoFeatures').textContent = vertebra.data.features;
+
+                controls.target.copy(vertebra.group.position);
+            } else {
+                selectedVertebra = null;
+                controls.target.set(0, 0, 0);
+            }
+        }
+
+        function toggleExplode() {
+            isExploded = !isExploded;
+            const btn = document.getElementById('btnExplode');
+            btn.classList.toggle('active');
+
+            vertebrae.forEach((v, index) => {
+                const targetY = isExploded ? v.originalY + (index - vertebrae.length / 2) * 4 : v.originalY;
+                animatePosition(v.group, targetY);
+            });
+        }
+        
+        function toggleRotate() {
+            isRotating = !isRotating;
+            document.getElementById('btnRotate').classList.toggle('active');
+            controls.autoRotate = isRotating;
+        }
+
+        function resetView() {
+            camera.position.set(12, 0, 30);
+            controls.target.set(0, 0, 0);
+            controls.update();
+            
+            const centralGroup = scene.children.find(c => c instanceof THREE.Group && c.children.length > 0 && c.children[0].position.y > 0);
+            if(centralGroup) {
+                centralGroup.rotation.set(0, 0, 0);
+            }
+            
+            vertebrae.forEach(v => {
+                v.group.position.y = v.originalY; 
+            });
+            isExploded = false;
+            isRotating = false;
+            document.getElementById('btnExplode').classList.remove('active');
+            document.getElementById('btnRotate').classList.remove('active');
+            selectVertebra(null);
+        }
+        
+        function onWindowResize() {
+            const container = document.getElementById('canvas-container');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        function animatePosition(object, targetY) {
+            const duration = 1000;
+            const startY = object.position.y;
+            const startTime = Date.now();
+
+            function update() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = easeInOutCubic(progress);
+
+                object.position.y = startY + (targetY - startY) * eased;
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            update();
+        }
+
+        function easeInOutCubic(t) {
+            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update(); 
+            renderer.render(scene, camera);
+        }
+
+        // --- QUIZ FUNCTIONALITY ---
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedAnswer = null;
+
+        document.getElementById('btnQuiz').addEventListener('click', startQuiz);
+        document.getElementById('btnCloseQuiz').addEventListener('click', closeQuiz);
+        document.getElementById('btnRetakeQuiz').addEventListener('click', startQuiz);
+
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            selectedAnswer = null;
+            document.getElementById('quizOverlay').classList.add('active');
+            document.getElementById('quizContent').style.display = 'block';
+            document.getElementById('quizResult').style.display = 'none';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = quizQuestions[currentQuestion];
+            document.getElementById('questionText').textContent = question.question;
+            document.getElementById('quizProgress').textContent = `Question ${currentQuestion + 1}/${quizQuestions.length}`;
+
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            selectedAnswer = null;
+            document.getElementById('btnNextQuestion').textContent = 'Submit Answer';
+            document.getElementById('btnNextQuestion').removeEventListener('click', nextQuestion);
+            document.getElementById('btnNextQuestion').removeEventListener('click', checkAnswer);
+            document.getElementById('btnNextQuestion').addEventListener('click', checkAnswer, { once: true });
+
+
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.textContent = option;
+                optionDiv.dataset.index = index;
+                optionDiv.addEventListener('click', () => selectOption(optionDiv));
+                optionsContainer.appendChild(optionDiv);
+            });
+        }
+
+        function selectOption(selectedDiv) {
+            if (selectedAnswer !== null) return; 
+
+            const options = document.querySelectorAll('.option');
+            options.forEach(opt => opt.classList.remove('selected'));
+
+            selectedDiv.classList.add('selected');
+            selectedAnswer = parseInt(selectedDiv.dataset.index);
+        }
+        
+        function checkAnswer() {
+            const question = quizQuestions[currentQuestion];
+            const options = document.querySelectorAll('.option');
+
+            options.forEach((opt, index) => {
+                opt.removeEventListener('click', () => selectOption(opt));
+                if (index === question.correct) {
+                    opt.classList.add('correct');
+                } else if (index === selectedAnswer) {
+                    opt.classList.add('incorrect');
+                }
+            });
+
+            if (selectedAnswer === question.correct) {
+                score++;
+            }
+            
+            document.getElementById('btnNextQuestion').textContent = (currentQuestion === quizQuestions.length - 1) ? 'View Results' : 'Next Question';
+            document.getElementById('btnNextQuestion').removeEventListener('click', checkAnswer);
+            document.getElementById('btnNextQuestion').addEventListener('click', nextQuestion);
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < quizQuestions.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quizContent').style.display = 'none';
+            const resultPanel = document.getElementById('quizResult');
+            resultPanel.style.display = 'block';
+
+            document.getElementById('finalScore').textContent = `${score}/${quizQuestions.length}`;
+
+            let message = '';
+            const percentage = (score / quizQuestions.length) * 100;
+
+            if (percentage === 100) {
+                message = 'Perfect score! You are a spinal anatomy master! 🌟';
+            } else if (percentage >= 80) {
+                message = 'Excellent job! You have a strong knowledge of the spine. 💪';
+            } else if (percentage >= 50) {
+                message = 'Good effort! Keep studying those regions and special vertebrae. 🤔';
+            } else {
+                message = 'Time to review! Explore the 3D model to improve your score. 📚';
+            }
+            document.getElementById('resultMessage').textContent = message;
+        }
+
+        function closeQuiz() {
+            document.getElementById('quizOverlay').classList.remove('active');
+        }
+
+        // Initialize the Three.js scene
+        window.onload = init;
+    </script>
+</body>
+</html>
