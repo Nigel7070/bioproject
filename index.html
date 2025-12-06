@@ -1,27 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XESCMS7KJR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-XESCMS7KJR');
+</script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Complete Vertebral Column Anatomy - Interactive 3D System</title>
-    
+    <title>Vertebral Column - Interactive 3D Anatomy</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         
         :root {
+            /* Professional Medical Palette */
             --primary-blue: #2563eb;
             --primary-dark: #1e40af;
             --primary-light: #3b82f6;
+            
             --accent-teal: #0891b2;
+            --accent-teal-light: #06b6d4;
+            
             --success-green: #059669;
+            --error-red: #dc2626;
+            --warning-amber: #d97706;
+            
             --bg-primary: #ffffff;
             --bg-secondary: #f8fafc;
             --bg-tertiary: #f1f5f9;
+            
             --text-primary: #0f172a;
             --text-secondary: #475569;
             --text-tertiary: #64748b;
+            
             --border-light: #e2e8f0;
             --border-medium: #cbd5e1;
+            
+            /* Region Colors - Soft Pastels */
+            --cervical: #fef3c7;
+            --cervical-accent: #f59e0b;
+            --thoracic: #d1fae5;
+            --thoracic-accent: #10b981;
+            --lumbar: #dbeafe;
+            --lumbar-accent: #3b82f6;
+            --sacral: #fce7f3;
+            --sacral-accent: #ec4899;
+            --coccyx: #e9d5ff;
+            --coccyx-accent: #a855f7;
         }
         
         * {
@@ -39,82 +70,48 @@
         }
         
         .container {
-            max-width: 1600px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 30px 20px;
         }
         
         /* Header */
         header {
-            background: linear-gradient(135deg, var(--primary-blue), var(--primary-dark));
-            padding: 50px 40px;
-            border-radius: 16px;
+            background: var(--bg-primary);
+            padding: 40px 30px;
+            border-radius: 12px;
             margin-bottom: 30px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-light);
+        }
+        
+        .header-content {
             text-align: center;
         }
         
         h1 {
-            font-size: clamp(2rem, 5vw, 3.5rem);
-            font-weight: 800;
-            color: white;
-            margin-bottom: 12px;
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 8px;
             letter-spacing: -0.5px;
         }
         
         .subtitle {
-            font-size: 1.25rem;
-            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.125rem;
+            color: var(--text-secondary);
             font-weight: 400;
         }
         
-        /* Tab Navigation */
-        .tab-navigation {
-            background: var(--bg-primary);
-            border-radius: 12px;
-            padding: 8px;
-            margin-bottom: 30px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            border: 1px solid var(--border-light);
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-        }
-        
-        .tab-btn {
-            flex: 1;
-            min-width: 140px;
-            padding: 16px 24px;
-            background: transparent;
-            border: 2px solid transparent;
-            border-radius: 8px;
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-            position: relative;
-        }
-        
-        .tab-btn:hover {
+        .badge {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 6px 16px;
             background: var(--bg-tertiary);
-            color: var(--primary-blue);
-        }
-        
-        .tab-btn.active {
-            background: var(--primary-blue);
-            color: white;
-            border-color: var(--primary-blue);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-        }
-        
-        .tab-label {
-            display: block;
+            color: var(--text-secondary);
+            border-radius: 20px;
             font-size: 0.875rem;
-            opacity: 0.8;
-            margin-top: 4px;
+            font-weight: 500;
         }
         
         /* Main Grid */
@@ -131,11 +128,11 @@
             }
         }
         
-        /* Viewer Card */
+        /* Viewer Section */
         .viewer-card {
             background: var(--bg-primary);
             border-radius: 12px;
-            padding: 30px;
+            padding: 25px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             border: 1px solid var(--border-light);
         }
@@ -150,24 +147,24 @@
         }
         
         .card-title {
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-size: 1.25rem;
+            font-weight: 600;
             color: var(--text-primary);
         }
         
         .view-badge {
             background: var(--primary-blue);
             color: white;
-            padding: 8px 16px;
-            border-radius: 8px;
+            padding: 6px 14px;
+            border-radius: 6px;
             font-size: 0.875rem;
-            font-weight: 600;
+            font-weight: 500;
         }
         
         #viewer-canvas {
             width: 100%;
-            height: 650px;
-            border-radius: 10px;
+            height: 600px;
+            border-radius: 8px;
             background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
             border: 1px solid var(--border-light);
             position: relative;
@@ -177,18 +174,18 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 12px;
-            margin-top: 25px;
+            margin-top: 20px;
         }
         
         .btn {
             font-family: 'Inter', sans-serif;
-            padding: 14px 20px;
+            padding: 12px 18px;
             background: var(--bg-primary);
             color: var(--primary-blue);
-            font-size: 0.95rem;
-            font-weight: 600;
-            border: 2px solid var(--border-medium);
-            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: 1.5px solid var(--border-medium);
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
@@ -201,8 +198,8 @@
             background: var(--primary-blue);
             color: white;
             border-color: var(--primary-blue);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.1);
         }
         
         .btn-primary {
@@ -220,10 +217,10 @@
         .info-panel {
             background: var(--bg-primary);
             border-radius: 12px;
-            padding: 30px;
+            padding: 25px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             border: 1px solid var(--border-light);
-            max-height: 811px;
+            max-height: 721px;
             overflow-y: auto;
         }
         
@@ -241,176 +238,170 @@
             border-radius: 10px;
         }
         
+        .info-panel::-webkit-scrollbar-thumb:hover {
+            background: var(--text-tertiary);
+        }
+        
         .panel-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-blue);
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
             margin-bottom: 20px;
         }
         
         .instructions-box {
             background: var(--bg-tertiary);
-            padding: 18px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            border-left: 4px solid var(--accent-teal);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 3px solid var(--accent-teal);
         }
         
         .instructions-box h3 {
             color: var(--accent-teal);
-            font-size: 1rem;
-            font-weight: 700;
-            margin-bottom: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 10px;
         }
         
         .instructions-box p {
             color: var(--text-secondary);
-            font-size: 0.9rem;
-            line-height: 1.7;
+            font-size: 0.875rem;
+            line-height: 1.6;
         }
         
-        .info-section {
-            margin-bottom: 25px;
+        .region-group {
+            margin-bottom: 20px;
         }
         
-        .info-section h3 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 12px;
-        }
-        
-        .info-section p {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            line-height: 1.7;
-            margin-bottom: 12px;
-        }
-        
-        .info-section ul {
-            list-style: none;
-            padding: 0;
-        }
-        
-        .info-section li {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            line-height: 1.8;
-            padding: 8px 0;
-            padding-left: 24px;
-            position: relative;
-        }
-        
-        .info-section li::before {
-            content: "→";
-            position: absolute;
-            left: 0;
-            color: var(--primary-blue);
-            font-weight: 700;
-        }
-        
-        .highlight-box {
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(37, 99, 235, 0.05));
-            padding: 16px;
+        .region-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
             border-radius: 8px;
-            border-left: 4px solid var(--primary-blue);
-            margin-top: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid;
         }
         
-        .highlight-box p {
+        .region-cervical {
+            background: var(--cervical);
+            border-color: var(--cervical-accent);
+        }
+        
+        .region-thoracic {
+            background: var(--thoracic);
+            border-color: var(--thoracic-accent);
+        }
+        
+        .region-lumbar {
+            background: var(--lumbar);
+            border-color: var(--lumbar-accent);
+        }
+        
+        .region-sacral {
+            background: var(--sacral);
+            border-color: var(--sacral-accent);
+        }
+        
+        .region-coccyx {
+            background: var(--coccyx);
+            border-color: var(--coccyx-accent);
+        }
+        
+        .region-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        
+        .region-cervical .region-icon {
+            background: var(--cervical-accent);
+            color: white;
+        }
+        
+        .region-thoracic .region-icon {
+            background: var(--thoracic-accent);
+            color: white;
+        }
+        
+        .region-lumbar .region-icon {
+            background: var(--lumbar-accent);
+            color: white;
+        }
+        
+        .region-sacral .region-icon {
+            background: var(--sacral-accent);
+            color: white;
+        }
+        
+        .region-coccyx .region-icon {
+            background: var(--coccyx-accent);
+            color: white;
+        }
+        
+        .region-title-text {
+            font-weight: 600;
+            font-size: 1rem;
             color: var(--text-primary);
-            font-weight: 500;
+        }
+        
+        .region-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            padding-left: 16px;
         }
         
         /* Labels */
         .label-marker {
             position: absolute;
-            min-width: 70px;
-            padding: 8px 16px;
-            background: rgba(37, 99, 235, 0.95);
-            color: white;
-            border-radius: 8px;
-            font-weight: 700;
+            min-width: 60px;
+            padding: 6px 14px;
+            background: white;
+            color: var(--primary-blue);
+            border-radius: 6px;
+            font-weight: 600;
             font-size: 0.85rem;
             cursor: pointer;
             z-index: 100;
-            box-shadow: 
-                0 4px 12px rgba(0, 0, 0, 0.3),
-                0 0 20px rgba(37, 99, 235, 0.5);
-            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            border: 1.5px solid var(--primary-blue);
             transition: all 0.2s ease;
             text-align: center;
-            white-space: nowrap;
-            pointer-events: auto;
         }
         
         .label-marker:hover {
-            transform: scale(1.1);
-            box-shadow: 
-                0 6px 16px rgba(0, 0, 0, 0.4),
-                0 0 30px rgba(37, 99, 235, 0.7);
-        }
-        
-        /* Tab Content */
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-        
-        .stat-card {
-            background: var(--bg-primary);
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            border: 1px solid var(--border-light);
-        }
-        
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--primary-blue);
-            margin-bottom: 6px;
-            line-height: 1;
-        }
-        
-        .stat-label {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            font-weight: 600;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
         }
         
         /* Quiz Section */
         .quiz-card {
             background: var(--bg-primary);
             border-radius: 12px;
-            padding: 40px;
+            padding: 35px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             border: 1px solid var(--border-light);
         }
         
         .quiz-card h2 {
-            font-size: 2rem;
+            font-size: 1.75rem;
             font-weight: 700;
             color: var(--text-primary);
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             text-align: center;
         }
         
         .question {
             background: var(--bg-secondary);
-            padding: 25px;
+            padding: 24px;
             border-radius: 10px;
             margin-bottom: 20px;
             border: 1px solid var(--border-light);
@@ -421,7 +412,7 @@
             margin-bottom: 16px;
             font-size: 1.05rem;
             font-weight: 600;
-            line-height: 1.6;
+            line-height: 1.5;
         }
         
         .options {
@@ -444,7 +435,7 @@
         .option:hover {
             background: var(--bg-tertiary);
             border-color: var(--primary-blue);
-            transform: translateX(6px);
+            transform: translateX(4px);
         }
         
         .option.correct {
@@ -455,49 +446,81 @@
         
         .option.incorrect {
             background: #fee2e2;
-            border-color: #dc2626;
+            border-color: var(--error-red);
             color: #991b1b;
         }
         
         .score-display {
             text-align: center;
-            padding: 40px;
+            padding: 35px;
             background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
             border-radius: 12px;
-            margin-top: 30px;
+            margin-top: 25px;
             border: 2px solid var(--primary-blue);
         }
         
         .score-display h3 {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             color: var(--text-primary);
-            margin-bottom: 20px;
-            font-weight: 700;
+            margin-bottom: 15px;
+            font-weight: 600;
         }
         
         .score-number {
-            font-size: 5rem;
-            font-weight: 900;
+            font-size: 4rem;
+            font-weight: 800;
             color: var(--primary-blue);
             line-height: 1;
         }
         
         .score-percentage {
-            font-size: 1.25rem;
+            font-size: 1.125rem;
             color: var(--text-secondary);
-            margin-top: 15px;
-            font-weight: 600;
+            margin-top: 10px;
+            font-weight: 500;
         }
         
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: var(--bg-primary);
+            padding: 24px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-light);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        /* Footer */
         footer {
             text-align: center;
-            padding: 40px;
+            padding: 30px;
             color: var(--text-tertiary);
-            margin-top: 50px;
+            margin-top: 40px;
             border-top: 1px solid var(--border-light);
             font-size: 0.9rem;
         }
         
+        /* Responsive */
         @media (max-width: 768px) {
             .container {
                 padding: 20px 15px;
@@ -510,68 +533,52 @@
             .controls {
                 grid-template-columns: 1fr 1fr;
             }
-            
-            .tab-navigation {
-                flex-direction: column;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Vertebral Column Anatomy</h1>
-            <p class="subtitle">Complete Interactive 3D Educational System</p>
+            <div class="header-content">
+                <h1>Vertebral Column Anatomy</h1>
+                <p class="subtitle">Interactive 3D Educational Model</p>
+                <span class="badge">33 Vertebrae • 5 Regions • Medical Grade Visualization</span>
+            </div>
         </header>
         
         <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number">4</div>
-                <div class="stat-label">3D Models</div>
-            </div>
             <div class="stat-card">
                 <div class="stat-number">33</div>
                 <div class="stat-label">Total Vertebrae</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">40+</div>
-                <div class="stat-label">Labeled Parts</div>
+                <div class="stat-number">7</div>
+                <div class="stat-label">Cervical</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">360°</div>
-                <div class="stat-label">Rotation</div>
+                <div class="stat-number">12</div>
+                <div class="stat-label">Thoracic</div>
             </div>
-        </div>
-        
-        <div class="tab-navigation">
-            <button class="tab-btn active" onclick="switchTab('atlas')">
-                <div>Atlas (C1)</div>
-                <span class="tab-label">First Cervical</span>
-            </button>
-            <button class="tab-btn" onclick="switchTab('axis')">
-                <div>Axis (C2)</div>
-                <span class="tab-label">Second Cervical</span>
-            </button>
-            <button class="tab-btn" onclick="switchTab('cervical')">
-                <div>Cervical</div>
-                <span class="tab-label">Typical C3-C7</span>
-            </button>
-            <button class="tab-btn" onclick="switchTab('spine')">
-                <div>Full Spine</div>
-                <span class="tab-label">Complete Column</span>
-            </button>
+            <div class="stat-card">
+                <div class="stat-number">5</div>
+                <div class="stat-label">Lumbar</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">5+4</div>
+                <div class="stat-label">Sacrum + Coccyx</div>
+            </div>
         </div>
         
         <div class="main-grid">
             <div class="viewer-card">
                 <div class="card-header">
-                    <h2 class="card-title" id="viewerTitle">Atlas (C1) Vertebra</h2>
-                    <span class="view-badge">Interactive 3D</span>
+                    <h2 class="card-title">3D Model Viewer</h2>
+                    <span class="view-badge">Interactive</span>
                 </div>
                 <div id="viewer-canvas"></div>
                 <div class="controls">
-                    <button class="btn btn-primary" onclick="toggleLabels()">
-                        <span id="labelBtn">Hide Labels</span>
+                    <button class="btn" onclick="toggleLabels()">
+                        <span id="labelBtn">Show Labels</span>
                     </button>
                     <button class="btn" onclick="resetView()">
                         <span>Reset View</span>
@@ -579,117 +586,164 @@
                     <button class="btn" onclick="toggleRotation()">
                         <span id="rotateBtn">Pause Rotation</span>
                     </button>
-                    <button class="btn" onclick="toggleColors()">
-                        <span id="colorBtn">Color Parts</span>
+                    <button class="btn btn-primary" onclick="toggleColors()">
+                        <span id="colorBtn">Color Regions</span>
                     </button>
                 </div>
             </div>
             
-            <div class="info-panel" id="infoPanel">
-                <!-- Content will be dynamically updated -->
+            <div class="info-panel">
+                <h2 class="panel-title">Spinal Regions</h2>
+                
+                <div class="instructions-box">
+                    <h3>🎯 Viewer Controls</h3>
+                    <p><strong>Rotate:</strong> Left click + drag<br>
+                    <strong>Zoom:</strong> Scroll wheel<br>
+                    <strong>Pan:</strong> Right click + drag</p>
+                </div>
+                
+                <div class="region-group">
+                    <div class="region-header region-cervical">
+                        <div class="region-icon">C</div>
+                        <span class="region-title-text">Cervical (C1-C7)</span>
+                    </div>
+                    <p class="region-description">Seven vertebrae in the neck region. Smallest and most mobile vertebrae allowing head rotation and flexion. C1 (Atlas) supports the skull, while C2 (Axis) enables rotational movement.</p>
+                </div>
+                
+                <div class="region-group">
+                    <div class="region-header region-thoracic">
+                        <div class="region-icon">T</div>
+                        <span class="region-title-text">Thoracic (T1-T12)</span>
+                    </div>
+                    <p class="region-description">Twelve vertebrae in the chest region that articulate with ribs, forming the thoracic cage. Medium-sized with limited mobility to provide stability and protect vital organs.</p>
+                </div>
+                
+                <div class="region-group">
+                    <div class="region-header region-lumbar">
+                        <div class="region-icon">L</div>
+                        <span class="region-title-text">Lumbar (L1-L5)</span>
+                    </div>
+                    <p class="region-description">Five vertebrae in the lower back. Largest and strongest vertebrae, bearing most of the body's weight. Allow significant flexion and extension of the trunk.</p>
+                </div>
+                
+                <div class="region-group">
+                    <div class="region-header region-sacral">
+                        <div class="region-icon">S</div>
+                        <span class="region-title-text">Sacrum (5 fused)</span>
+                    </div>
+                    <p class="region-description">Five fused vertebrae forming a triangular bone. Connects the spine to the pelvis through the sacroiliac joints and transmits body weight to the hip bones.</p>
+                </div>
+                
+                <div class="region-group">
+                    <div class="region-header region-coccyx">
+                        <div class="region-icon">Co</div>
+                        <span class="region-title-text">Coccyx (3-5 fused)</span>
+                    </div>
+                    <p class="region-description">Three to five fused vertebrae forming the tailbone. Vestigial structure providing attachment points for ligaments and muscles of the pelvic floor.</p>
+                </div>
             </div>
         </div>
         
         <div class="quiz-card">
-            <h2>Knowledge Assessment - Vertebral Column</h2>
-            
-            <div class="question" data-answer="0">
-                <h3>1. What makes the Atlas (C1) vertebra unique?</h3>
-                <div class="options">
-                    <div class="option" onclick="checkAnswer(this, 0, 0)">A) It has no vertebral body</div>
-                    <div class="option" onclick="checkAnswer(this, 0, 1)">B) It has the longest spinous process</div>
-                    <div class="option" onclick="checkAnswer(this, 0, 2)">C) It has costal facets</div>
-                    <div class="option" onclick="checkAnswer(this, 0, 3)">D) It is the largest vertebra</div>
-                </div>
-            </div>
+            <h2>Knowledge Assessment - Form 4 Biology Chapter 14</h2>
             
             <div class="question" data-answer="2">
-                <h3>2. What is the dens (odontoid process)?</h3>
+                <h3>1. What is the main function of the vertebral column?</h3>
                 <div class="options">
-                    <div class="option" onclick="checkAnswer(this, 1, 0)">A) Part of the atlas</div>
-                    <div class="option" onclick="checkAnswer(this, 1, 1)">B) Part of the sacrum</div>
-                    <div class="option" onclick="checkAnswer(this, 1, 2)">C) A peg-like projection on the axis (C2)</div>
-                    <div class="option" onclick="checkAnswer(this, 1, 3)">D) A ligament</div>
+                    <div class="option" onclick="checkAnswer(this, 0, 0)">A) To produce red blood cells</div>
+                    <div class="option" onclick="checkAnswer(this, 0, 1)">B) To store minerals only</div>
+                    <div class="option" onclick="checkAnswer(this, 0, 2)">C) To support the body and protect the spinal cord</div>
+                    <div class="option" onclick="checkAnswer(this, 0, 3)">D) To filter blood</div>
                 </div>
             </div>
             
             <div class="question" data-answer="1">
-                <h3>3. Which vertebrae have transverse foramina?</h3>
+                <h3>2. What is the function of intervertebral discs between vertebrae?</h3>
                 <div class="options">
-                    <div class="option" onclick="checkAnswer(this, 2, 0)">A) All vertebrae</div>
-                    <div class="option" onclick="checkAnswer(this, 2, 1)">B) Only cervical vertebrae (C1-C7)</div>
-                    <div class="option" onclick="checkAnswer(this, 2, 2)">C) Only thoracic vertebrae</div>
-                    <div class="option" onclick="checkAnswer(this, 2, 3)">D) Only lumbar vertebrae</div>
+                    <div class="option" onclick="checkAnswer(this, 1, 0)">A) To produce synovial fluid</div>
+                    <div class="option" onclick="checkAnswer(this, 1, 1)">B) To act as shock absorbers and allow flexibility</div>
+                    <div class="option" onclick="checkAnswer(this, 1, 2)">C) To produce blood cells</div>
+                    <div class="option" onclick="checkAnswer(this, 1, 3)">D) To store calcium</div>
                 </div>
             </div>
             
             <div class="question" data-answer="3">
-                <h3>4. What passes through the vertebral foramen?</h3>
+                <h3>3. Which part of the vertebra protects the spinal cord?</h3>
                 <div class="options">
-                    <div class="option" onclick="checkAnswer(this, 3, 0)">A) Blood vessels only</div>
-                    <div class="option" onclick="checkAnswer(this, 3, 1)">B) Nerves only</div>
-                    <div class="option" onclick="checkAnswer(this, 3, 2)">C) Muscles</div>
-                    <div class="option" onclick="checkAnswer(this, 3, 3)">D) Spinal cord</div>
+                    <div class="option" onclick="checkAnswer(this, 2, 0)">A) Spinous process</div>
+                    <div class="option" onclick="checkAnswer(this, 2, 1)">B) Transverse process</div>
+                    <div class="option" onclick="checkAnswer(this, 2, 2)">C) Vertebral body</div>
+                    <div class="option" onclick="checkAnswer(this, 2, 3)">D) Vertebral foramen (neural canal)</div>
                 </div>
             </div>
             
             <div class="question" data-answer="0">
-                <h3>5. How many cervical vertebrae are in the human spine?</h3>
+                <h3>4. Why are lumbar vertebrae larger than cervical vertebrae?</h3>
                 <div class="options">
-                    <div class="option" onclick="checkAnswer(this, 4, 0)">A) 7 vertebrae</div>
-                    <div class="option" onclick="checkAnswer(this, 4, 1)">B) 12 vertebrae</div>
-                    <div class="option" onclick="checkAnswer(this, 4, 2)">C) 5 vertebrae</div>
-                    <div class="option" onclick="checkAnswer(this, 4, 3)">D) 4 vertebrae</div>
+                    <div class="option" onclick="checkAnswer(this, 3, 0)">A) They need to support more body weight</div>
+                    <div class="option" onclick="checkAnswer(this, 3, 1)">B) They produce more blood cells</div>
+                    <div class="option" onclick="checkAnswer(this, 3, 2)">C) They have more flexibility</div>
+                    <div class="option" onclick="checkAnswer(this, 3, 3)">D) They protect the heart</div>
+                </div>
+            </div>
+            
+            <div class="question" data-answer="2">
+                <h3>5. What condition occurs when an intervertebral disc moves out of position?</h3>
+                <div class="options">
+                    <div class="option" onclick="checkAnswer(this, 4, 0)">A) Osteoporosis</div>
+                    <div class="option" onclick="checkAnswer(this, 4, 1)">B) Arthritis</div>
+                    <div class="option" onclick="checkAnswer(this, 4, 2)">C) Slipped disc (prolapsed disc)</div>
+                    <div class="option" onclick="checkAnswer(this, 4, 3)">D) Rickets</div>
                 </div>
             </div>
             
             <div class="question" data-answer="1">
-                <h3>6. Which vertebrae articulate with the ribs?</h3>
+                <h3>6. Which vertebrae have the greatest range of movement?</h3>
                 <div class="options">
-                    <div class="option" onclick="checkAnswer(this, 5, 0)">A) Cervical vertebrae</div>
-                    <div class="option" onclick="checkAnswer(this, 5, 1)">B) Thoracic vertebrae (T1-T12)</div>
+                    <div class="option" onclick="checkAnswer(this, 5, 0)">A) Thoracic vertebrae</div>
+                    <div class="option" onclick="checkAnswer(this, 5, 1)">B) Cervical vertebrae</div>
                     <div class="option" onclick="checkAnswer(this, 5, 2)">C) Lumbar vertebrae</div>
                     <div class="option" onclick="checkAnswer(this, 5, 3)">D) Sacral vertebrae</div>
                 </div>
             </div>
             
-            <div class="question" data-answer="2">
-                <h3>7. Why are lumbar vertebrae larger than cervical vertebrae?</h3>
+            <div class="question" data-answer="3">
+                <h3>7. What is the role of the spinous process and transverse process?</h3>
                 <div class="options">
-                    <div class="option" onclick="checkAnswer(this, 6, 0)">A) They produce more blood cells</div>
-                    <div class="option" onclick="checkAnswer(this, 6, 1)">B) They have more mobility</div>
-                    <div class="option" onclick="checkAnswer(this, 6, 2)">C) They support more body weight</div>
-                    <div class="option" onclick="checkAnswer(this, 6, 3)">D) They protect the heart</div>
+                    <div class="option" onclick="checkAnswer(this, 6, 0)">A) To protect the heart</div>
+                    <div class="option" onclick="checkAnswer(this, 6, 1)">B) To produce bone marrow</div>
+                    <div class="option" onclick="checkAnswer(this, 6, 2)">C) To store calcium</div>
+                    <div class="option" onclick="checkAnswer(this, 6, 3)">D) For muscle and ligament attachment</div>
                 </div>
             </div>
             
             <div class="question" data-answer="0">
-                <h3>8. What is the total number of vertebrae in the adult spine?</h3>
+                <h3>8. The vertebral column is divided into how many regions?</h3>
                 <div class="options">
-                    <div class="option" onclick="checkAnswer(this, 7, 0)">A) 33 vertebrae</div>
-                    <div class="option" onclick="checkAnswer(this, 7, 1)">B) 24 vertebrae</div>
-                    <div class="option" onclick="checkAnswer(this, 7, 2)">C) 30 vertebrae</div>
-                    <div class="option" onclick="checkAnswer(this, 7, 3)">D) 26 vertebrae</div>
+                    <div class="option" onclick="checkAnswer(this, 7, 0)">A) 5 regions</div>
+                    <div class="option" onclick="checkAnswer(this, 7, 1)">B) 3 regions</div>
+                    <div class="option" onclick="checkAnswer(this, 7, 2)">C) 4 regions</div>
+                    <div class="option" onclick="checkAnswer(this, 7, 3)">D) 7 regions</div>
                 </div>
             </div>
             
-            <div class="question" data-answer="3">
-                <h3>9. What movement does the atlantoaxial joint (C1-C2) primarily allow?</h3>
+            <div class="question" data-answer="2">
+                <h3>9. Which of the following is NOT a function of the vertebral column?</h3>
                 <div class="options">
-                    <div class="option" onclick="checkAnswer(this, 8, 0)">A) Flexion and extension only</div>
-                    <div class="option" onclick="checkAnswer(this, 8, 1)">B) Side bending only</div>
-                    <div class="option" onclick="checkAnswer(this, 8, 2)">C) No movement</div>
-                    <div class="option" onclick="checkAnswer(this, 8, 3)">D) Rotation (head turning side to side)</div>
+                    <div class="option" onclick="checkAnswer(this, 8, 0)">A) Protects the spinal cord</div>
+                    <div class="option" onclick="checkAnswer(this, 8, 1)">B) Provides attachment for ribs and muscles</div>
+                    <div class="option" onclick="checkAnswer(this, 8, 2)">C) Filters waste products from blood</div>
+                    <div class="option" onclick="checkAnswer(this, 8, 3)">D) Supports the weight of the body</div>
                 </div>
             </div>
             
             <div class="question" data-answer="1">
-                <h3>10. Which bone is formed by 5 fused vertebrae?</h3>
+                <h3>10. What structure passes through the vertebral foramen?</h3>
                 <div class="options">
-                    <div class="option" onclick="checkAnswer(this, 9, 0)">A) Coccyx</div>
-                    <div class="option" onclick="checkAnswer(this, 9, 1)">B) Sacrum</div>
-                    <div class="option" onclick="checkAnswer(this, 9, 2)">C) Atlas</div>
-                    <div class="option" onclick="checkAnswer(this, 9, 3)">D) Axis</div>
+                    <div class="option" onclick="checkAnswer(this, 9, 0)">A) Blood vessels only</div>
+                    <div class="option" onclick="checkAnswer(this, 9, 1)">B) Spinal cord</div>
+                    <div class="option" onclick="checkAnswer(this, 9, 2)">C) Muscles</div>
+                    <div class="option" onclick="checkAnswer(this, 9, 3)">D) Ligaments</div>
                 </div>
             </div>
             
@@ -701,8 +755,8 @@
         </div>
         
         <footer>
-            <p><strong>Complete Vertebral Column Anatomy System</strong></p>
-            <p style="margin-top: 8px;">Interactive 3D Educational Tool • Form 4 Biology Chapter 14</p>
+            <p>Interactive Vertebral Column Anatomy • Educational 3D Model • Medical Grade Visualization</p>
+            <p style="margin-top: 8px; font-size: 0.85rem;">Developed for educational purposes</p>
         </footer>
     </div>
     
@@ -720,86 +774,38 @@
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         
         let scene, camera, renderer, controls;
-        let currentModel;
+        let spineGroup;
         let labelMarkers = [];
-        let labelsVisible = true;
+        let labelsVisible = false;
         let autoRotate = true;
         let showColors = false;
-        let currentView = 'atlas';
         const userAnswers = new Array(10).fill(null);
         
+        // Professional bone color
         const boneColor = 0xe8dcc8;
         
-        // Info content for each view
-        const infoContent = {
-            atlas: {
-                title: 'Atlas (C1) Vertebra',
-                description: 'The atlas is the first and most superior cervical vertebra. It is unique because it has no vertebral body, forming a ring-like structure. Named after the Greek titan Atlas who held up the celestial sphere, this vertebra supports the skull.',
-                features: [
-                    'No vertebral body - unique ring-shaped structure',
-                    'Anterior arch with facet for dens articulation',
-                    'Posterior arch with groove for vertebral artery',
-                    'Large lateral masses bearing the weight of head',
-                    'Superior articular facets for occipital condyles',
-                    'Transverse processes with transverse foramina',
-                    'Allows nodding movements (yes motion)'
-                ],
-                clinical: 'Jefferson fractures occur from vertical compression. The atlas is crucial for head support and atlanto-occipital joint function.'
-            },
-            axis: {
-                title: 'Axis (C2) Vertebra',
-                description: 'The axis is the second cervical vertebra, characterized by its unique dens (odontoid process). This peg-like projection extends upward into the atlas, forming a pivot joint that allows rotation of the head.',
-                features: [
-                    'Dens (odontoid process) - distinctive peg projection',
-                    'Vertebral body supporting the dens',
-                    'Bifid spinous process for muscle attachment',
-                    'Superior articular facets for atlas articulation',
-                    'Transverse processes with foramina',
-                    'Forms pivot joint with atlas (C1)',
-                    'Allows rotation movements (no motion)'
-                ],
-                clinical: 'Fractures of the dens are serious injuries. The atlantoaxial joint is essential for head rotation and stability.'
-            },
-            cervical: {
-                title: 'Typical Cervical Vertebra (C3-C7)',
-                description: 'Typical cervical vertebrae (C3-C7) are the smallest vertebrae but have unique features. They possess transverse foramina for vertebral arteries and have bifid spinous processes for muscle attachments.',
-                features: [
-                    'Small vertebral body - oval shaped',
-                    'Large triangular vertebral foramen',
-                    'Bifid spinous process (except C7)',
-                    'Transverse foramina for vertebral arteries',
-                    'Superior and inferior articular processes',
-                    'Uncinate processes on body margins',
-                    'Greatest range of motion in spine'
-                ],
-                clinical: 'C7 (vertebra prominens) has the most prominent spinous process. Cervical vertebrae are vulnerable to whiplash injuries.'
-            },
-            spine: {
-                title: 'Complete Vertebral Column',
-                description: 'The vertebral column consists of 33 vertebrae: 7 cervical, 12 thoracic, 5 lumbar, 5 fused sacral, and 4 fused coccygeal vertebrae. It provides support, protects the spinal cord, and allows movement.',
-                features: [
-                    'Cervical (C1-C7) - neck region, most mobile',
-                    'Thoracic (T1-T12) - chest, articulate with ribs',
-                    'Lumbar (L1-L5) - lower back, largest vertebrae',
-                    'Sacrum (5 fused) - connects to pelvis',
-                    'Coccyx (4 fused) - tailbone, vestigial',
-                    'Natural curves: cervical & lumbar lordosis, thoracic & sacral kyphosis',
-                    'Intervertebral discs provide cushioning'
-                ],
-                clinical: 'Spinal curvatures can become abnormal (scoliosis, kyphosis). The column bears body weight and protects vital neural tissue.'
-            }
+        // Soft pastel region colors
+        const regionColors = {
+            cervical: 0xfbbf24,    // Amber
+            thoracic: 0x10b981,    // Emerald
+            lumbar: 0x3b82f6,      // Blue
+            sacrum: 0xec4899,      // Pink
+            coccyx: 0xa855f7       // Purple
         };
         
         function init() {
             const container = document.getElementById('viewer-canvas');
             
+            // Scene
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0xf8fafc);
-            scene.fog = new THREE.Fog(0xf8fafc, 20, 60);
+            scene.fog = new THREE.Fog(0xf8fafc, 20, 50);
             
-            camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);
-            camera.position.set(8, 5, 8);
+            // Camera
+            camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(12, 8, 12);
             
+            // Renderer
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(container.clientWidth, container.clientHeight);
             renderer.setPixelRatio(window.devicePixelRatio);
@@ -807,13 +813,15 @@
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             container.appendChild(renderer.domElement);
             
-            // Lighting
+            // Professional lighting setup
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
             scene.add(ambientLight);
             
             const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
             directionalLight1.position.set(10, 15, 10);
             directionalLight1.castShadow = true;
+            directionalLight1.shadow.mapSize.width = 2048;
+            directionalLight1.shadow.mapSize.height = 2048;
             scene.add(directionalLight1);
             
             const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
@@ -824,414 +832,188 @@
             fillLight.position.set(0, -5, 0);
             scene.add(fillLight);
             
-            const gridHelper = new THREE.GridHelper(20, 20, 0xe2e8f0, 0xf1f5f9);
-            gridHelper.position.y = -3;
+            // Subtle grid
+            const gridHelper = new THREE.GridHelper(30, 30, 0xe2e8f0, 0xf1f5f9);
+            gridHelper.position.y = -12;
             scene.add(gridHelper);
             
+            // OrbitControls
             controls = new OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
-            controls.minDistance = 4;
-            controls.maxDistance = 25;
+            controls.minDistance = 8;
+            controls.maxDistance = 30;
             controls.autoRotate = true;
-            controls.autoRotateSpeed = 2.0;
+            controls.autoRotateSpeed = 1.5;
             
-            buildAtlas();
-            updateInfoPanel('atlas');
+            // Build spine
+            buildCompleteSpine();
             
+            // Create labels
+            createLabels();
+            
+            // Handle resize
             window.addEventListener('resize', onWindowResize);
+            
+            // Animate
             animate();
         }
         
-        function buildAtlas() {
-            if (currentModel) scene.remove(currentModel);
-            clearLabels();
+        function createVertebra(size, yPos, color) {
+            const vertebraGroup = new THREE.Group();
             
-            currentModel = new THREE.Group();
-            const color = showColors ? 0xffd700 : boneColor;
-            const material = new THREE.MeshPhongMaterial({ color: color, shininess: 20 });
+            // Vertebral body - more anatomically accurate
+            const bodyGeometry = new THREE.CylinderGeometry(size * 0.4, size * 0.45, size * 0.6, 20);
+            const bodyMaterial = new THREE.MeshPhongMaterial({ 
+                color: color, 
+                shininess: 15,
+                specular: 0x444444
+            });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.castShadow = true;
+            body.receiveShadow = true;
+            vertebraGroup.add(body);
             
-            // Anterior arch
-            const anteriorArch = new THREE.Mesh(
-                new THREE.BoxGeometry(1.2, 0.3, 0.25),
-                material
-            );
-            anteriorArch.position.set(0, 0, 1.2);
-            anteriorArch.castShadow = true;
-            currentModel.add(anteriorArch);
-            
-            // Posterior arch
-            const posteriorArch = new THREE.Mesh(
-                new THREE.BoxGeometry(1.5, 0.25, 0.2),
-                material
-            );
-            posteriorArch.position.set(0, 0.2, -1.3);
-            posteriorArch.castShadow = true;
-            currentModel.add(posteriorArch);
-            
-            // Lateral masses (left and right)
-            const lateralMassGeom = new THREE.BoxGeometry(0.6, 0.5, 0.8);
-            
-            const lateralMassR = new THREE.Mesh(lateralMassGeom, material);
-            lateralMassR.position.set(0.9, 0, 0);
-            lateralMassR.castShadow = true;
-            currentModel.add(lateralMassR);
-            
-            const lateralMassL = new THREE.Mesh(lateralMassGeom, material);
-            lateralMassL.position.set(-0.9, 0, 0);
-            lateralMassL.castShadow = true;
-            currentModel.add(lateralMassL);
+            // Spinous process
+            const spinousGeometry = new THREE.BoxGeometry(size * 0.15, size * 0.15, size * 0.9);
+            const spinousMaterial = new THREE.MeshPhongMaterial({ 
+                color: color, 
+                shininess: 15,
+                specular: 0x444444
+            });
+            const spinous = new THREE.Mesh(spinousGeometry, spinousMaterial);
+            spinous.position.set(0, size * 0.15, -size * 0.6);
+            spinous.castShadow = true;
+            spinous.receiveShadow = true;
+            vertebraGroup.add(spinous);
             
             // Transverse processes
-            const transverseGeom = new THREE.BoxGeometry(0.8, 0.15, 0.3);
+            const transverseGeometry = new THREE.BoxGeometry(size * 0.6, size * 0.12, size * 0.2);
+            const transverseMaterial = new THREE.MeshPhongMaterial({ 
+                color: color, 
+                shininess: 15,
+                specular: 0x444444
+            });
             
-            const transverseR = new THREE.Mesh(transverseGeom, material);
-            transverseR.position.set(1.6, -0.1, 0);
-            transverseR.castShadow = true;
-            currentModel.add(transverseR);
+            const transverseRight = new THREE.Mesh(transverseGeometry, transverseMaterial);
+            transverseRight.position.set(size * 0.5, size * 0.1, -size * 0.1);
+            transverseRight.castShadow = true;
+            transverseRight.receiveShadow = true;
+            vertebraGroup.add(transverseRight);
             
-            const transverseL = new THREE.Mesh(transverseGeom, material);
-            transverseL.position.set(-1.6, -0.1, 0);
-            transverseL.castShadow = true;
-            currentModel.add(transverseL);
-            
-            // Vertebral foramen (ring center)
-            const foramen = new THREE.Mesh(
-                new THREE.TorusGeometry(0.5, 0.1, 16, 32),
-                material
-            );
-            foramen.rotation.x = Math.PI / 2;
-            foramen.position.y = 0;
-            foramen.castShadow = true;
-            currentModel.add(foramen);
-            
-            scene.add(currentModel);
-            
-            // Create labels
-            createLabels([
-                { text: 'Anterior Arch', position: new THREE.Vector3(0, 0, 1.8) },
-                { text: 'Posterior Arch', position: new THREE.Vector3(0, 0.4, -1.8) },
-                { text: 'Lateral Mass (R)', position: new THREE.Vector3(1.5, 0, 0) },
-                { text: 'Lateral Mass (L)', position: new THREE.Vector3(-1.5, 0, 0) },
-                { text: 'Transverse Process (R)', position: new THREE.Vector3(2.2, -0.1, 0) },
-                { text: 'Transverse Process (L)', position: new THREE.Vector3(-2.2, -0.1, 0) },
-                { text: 'Vertebral Foramen', position: new THREE.Vector3(0, -0.5, 0) },
-                { text: 'Superior Articular Facet', position: new THREE.Vector3(1.2, 0.5, 0.3) }
-            ]);
-        }
-        
-        function buildAxis() {
-            if (currentModel) scene.remove(currentModel);
-            clearLabels();
-            
-            currentModel = new THREE.Group();
-            const color = showColors ? 0xff8c00 : boneColor;
-            const material = new THREE.MeshPhongMaterial({ color: color, shininess: 20 });
-            
-            // Dens (odontoid process)
-            const dens = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.25, 0.3, 1.2, 16),
-                material
-            );
-            dens.position.set(0, 1.2, 0.3);
-            dens.castShadow = true;
-            currentModel.add(dens);
-            
-            // Vertebral body
-            const body = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.6, 0.65, 0.7, 16),
-                material
-            );
-            body.position.set(0, 0, 0);
-            body.castShadow = true;
-            currentModel.add(body);
-            
-            // Spinous process (bifid)
-            const spinousBase = new THREE.Mesh(
-                new THREE.BoxGeometry(0.2, 0.2, 1.2),
-                material
-            );
-            spinousBase.position.set(0, 0.1, -1);
-            spinousBase.castShadow = true;
-            currentModel.add(spinousBase);
-            
-            // Bifid tips
-            const bifidR = new THREE.Mesh(
-                new THREE.BoxGeometry(0.15, 0.15, 0.4),
-                material
-            );
-            bifidR.position.set(0.15, 0.1, -1.5);
-            currentModel.add(bifidR);
-            
-            const bifidL = new THREE.Mesh(
-                new THREE.BoxGeometry(0.15, 0.15, 0.4),
-                material
-            );
-            bifidL.position.set(-0.15, 0.1, -1.5);
-            currentModel.add(bifidL);
-            
-            // Transverse processes
-            const transverseGeom = new THREE.BoxGeometry(0.7, 0.15, 0.3);
-            
-            const transverseR = new THREE.Mesh(transverseGeom, material);
-            transverseR.position.set(1.1, 0, 0);
-            transverseR.castShadow = true;
-            currentModel.add(transverseR);
-            
-            const transverseL = new THREE.Mesh(transverseGeom, material);
-            transverseL.position.set(-1.1, 0, 0);
-            transverseL.castShadow = true;
-            currentModel.add(transverseL);
-            
-            // Pedicles
-            const pedicleGeom = new THREE.CylinderGeometry(0.2, 0.2, 0.5, 12);
-            
-            const pedicleR = new THREE.Mesh(pedicleGeom, material);
-            pedicleR.rotation.z = Math.PI / 2;
-            pedicleR.position.set(0.6, 0.1, -0.2);
-            currentModel.add(pedicleR);
-            
-            const pedicleL = new THREE.Mesh(pedicleGeom, material);
-            pedicleL.rotation.z = Math.PI / 2;
-            pedicleL.position.set(-0.6, 0.1, -0.2);
-            currentModel.add(pedicleL);
-            
-            scene.add(currentModel);
-            
-            createLabels([
-                { text: 'Dens (Odontoid)', position: new THREE.Vector3(0, 2, 0.5) },
-                { text: 'Vertebral Body', position: new THREE.Vector3(0, -0.5, 0.8) },
-                { text: 'Spinous Process', position: new THREE.Vector3(0, 0.3, -2) },
-                { text: 'Superior Facet', position: new THREE.Vector3(0.8, 0.5, 0.2) },
-                { text: 'Transverse Process (R)', position: new THREE.Vector3(1.6, 0, 0) },
-                { text: 'Transverse Process (L)', position: new THREE.Vector3(-1.6, 0, 0) },
-                { text: 'Pedicle', position: new THREE.Vector3(1, 0.3, -0.2) },
-                { text: 'Vertebral Foramen', position: new THREE.Vector3(0, -0.3, -0.5) }
-            ]);
-        }
-        
-        function buildCervical() {
-            if (currentModel) scene.remove(currentModel);
-            clearLabels();
-            
-            currentModel = new THREE.Group();
-            const color = showColors ? 0x87ceeb : boneColor;
-            const material = new THREE.MeshPhongMaterial({ color: color, shininess: 20 });
-            
-            // Vertebral body
-            const body = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.5, 0.55, 0.6, 16),
-                material
-            );
-            body.position.set(0, 0, 0);
-            body.castShadow = true;
-            currentModel.add(body);
-            
-            // Spinous process (bifid)
-            const spinousBase = new THREE.Mesh(
-                new THREE.BoxGeometry(0.15, 0.15, 1.0),
-                material
-            );
-            spinousBase.position.set(0, 0.1, -0.9);
-            spinousBase.castShadow = true;
-            currentModel.add(spinousBase);
-            
-            const bifidR = new THREE.Mesh(
-                new THREE.BoxGeometry(0.12, 0.12, 0.3),
-                material
-            );
-            bifidR.position.set(0.12, 0.1, -1.3);
-            currentModel.add(bifidR);
-            
-            const bifidL = new THREE.Mesh(
-                new THREE.BoxGeometry(0.12, 0.12, 0.3),
-                material
-            );
-            bifidL.position.set(-0.12, 0.1, -1.3);
-            currentModel.add(bifidL);
-            
-            // Transverse processes with foramina
-            const transverseGeom = new THREE.BoxGeometry(0.7, 0.12, 0.25);
-            
-            const transverseR = new THREE.Mesh(transverseGeom, material);
-            transverseR.position.set(1.0, 0, 0);
-            transverseR.castShadow = true;
-            currentModel.add(transverseR);
-            
-            const transverseL = new THREE.Mesh(transverseGeom, material);
-            transverseL.position.set(-1.0, 0, 0);
-            transverseL.castShadow = true;
-            currentModel.add(transverseL);
-            
-            // Transverse foramina
-            const foramenGeom = new THREE.TorusGeometry(0.15, 0.05, 8, 16);
-            
-            const foramenR = new THREE.Mesh(foramenGeom, material);
-            foramenR.rotation.x = Math.PI / 2;
-            foramenR.position.set(1.0, 0, 0);
-            currentModel.add(foramenR);
-            
-            const foramenL = new THREE.Mesh(foramenGeom, material);
-            foramenL.rotation.x = Math.PI / 2;
-            foramenL.position.set(-1.0, 0, 0);
-            currentModel.add(foramenL);
+            const transverseLeft = new THREE.Mesh(transverseGeometry, transverseMaterial.clone());
+            transverseLeft.position.set(-size * 0.5, size * 0.1, -size * 0.1);
+            transverseLeft.castShadow = true;
+            transverseLeft.receiveShadow = true;
+            vertebraGroup.add(transverseLeft);
             
             // Vertebral arch
-            const arch = new THREE.Mesh(
-                new THREE.TorusGeometry(0.35, 0.1, 12, 16, Math.PI),
-                material
-            );
+            const archGeometry = new THREE.TorusGeometry(size * 0.25, size * 0.08, 12, 20, Math.PI);
+            const archMaterial = new THREE.MeshPhongMaterial({ 
+                color: color, 
+                shininess: 15,
+                specular: 0x444444
+            });
+            const arch = new THREE.Mesh(archGeometry, archMaterial);
             arch.rotation.x = Math.PI / 2;
-            arch.position.set(0, 0.05, -0.3);
+            arch.position.set(0, 0, -size * 0.15);
             arch.castShadow = true;
-            currentModel.add(arch);
+            arch.receiveShadow = true;
+            vertebraGroup.add(arch);
             
-            // Superior articular processes
-            const articularGeom = new THREE.BoxGeometry(0.2, 0.3, 0.2);
-            
-            const superiorR = new THREE.Mesh(articularGeom, material);
-            superiorR.position.set(0.6, 0.4, -0.2);
-            currentModel.add(superiorR);
-            
-            const superiorL = new THREE.Mesh(articularGeom, material);
-            superiorL.position.set(-0.6, 0.4, -0.2);
-            currentModel.add(superiorL);
-            
-            scene.add(currentModel);
-            
-            createLabels([
-                { text: 'Vertebral Body', position: new THREE.Vector3(0, -0.5, 0.7) },
-                { text: 'Spinous Process', position: new THREE.Vector3(0, 0.2, -1.7) },
-                { text: 'Transverse Process (R)', position: new THREE.Vector3(1.5, 0, 0) },
-                { text: 'Transverse Process (L)', position: new THREE.Vector3(-1.5, 0, 0) },
-                { text: 'Transverse Foramen', position: new THREE.Vector3(1.2, 0.3, 0) },
-                { text: 'Superior Articular Process', position: new THREE.Vector3(0.8, 0.8, -0.2) },
-                { text: 'Vertebral Foramen', position: new THREE.Vector3(0, -0.3, -0.5) },
-                { text: 'Pedicle', position: new THREE.Vector3(0.5, 0.1, 0.1) }
-            ]);
+            vertebraGroup.position.y = yPos;
+            return vertebraGroup;
         }
         
-        function buildFullSpine() {
-            if (currentModel) scene.remove(currentModel);
-            clearLabels();
-            
-            currentModel = new THREE.Group();
+        function buildCompleteSpine() {
+            spineGroup = new THREE.Group();
             let currentY = 0;
             const spacing = 0.7;
             
-            // CERVICAL (7)
+            // CERVICAL (C1-C7)
+            const cervicalColor = showColors ? regionColors.cervical : boneColor;
             for (let i = 0; i < 7; i++) {
-                const color = showColors ? 0xffd700 : boneColor;
                 const size = 0.8 + i * 0.05;
-                const vertebra = createSimpleVertebra(size, currentY, color);
-                currentModel.add(vertebra);
+                const vertebra = createVertebra(size, currentY, cervicalColor);
+                vertebra.userData = { region: 'cervical', number: i + 1 };
+                spineGroup.add(vertebra);
                 currentY -= spacing;
             }
             
-            // THORACIC (12)
+            // THORACIC (T1-T12)
+            const thoracicColor = showColors ? regionColors.thoracic : boneColor;
             for (let i = 0; i < 12; i++) {
-                const color = showColors ? 0x90ee90 : boneColor;
                 const size = 1.0 + i * 0.05;
-                const vertebra = createSimpleVertebra(size, currentY, color);
+                const vertebra = createVertebra(size, currentY, thoracicColor);
                 vertebra.position.z = -i * 0.08;
-                currentModel.add(vertebra);
+                vertebra.userData = { region: 'thoracic', number: i + 1 };
+                spineGroup.add(vertebra);
                 currentY -= spacing;
             }
             
-            // LUMBAR (5)
+            // LUMBAR (L1-L5)
+            const lumbarColor = showColors ? regionColors.lumbar : boneColor;
             for (let i = 0; i < 5; i++) {
-                const color = showColors ? 0x4169e1 : boneColor;
                 const size = 1.5 + i * 0.08;
-                const vertebra = createSimpleVertebra(size, currentY, color);
+                const vertebra = createVertebra(size, currentY, lumbarColor);
                 vertebra.position.z = -0.96 + i * 0.12;
-                currentModel.add(vertebra);
+                vertebra.userData = { region: 'lumbar', number: i + 1 };
+                spineGroup.add(vertebra);
                 currentY -= spacing * 1.2;
             }
             
             // SACRUM
-            const sacrumColor = showColors ? 0xff69b4 : boneColor;
-            const sacrum = new THREE.Mesh(
-                new THREE.ConeGeometry(1.8, 3.5, 4),
-                new THREE.MeshPhongMaterial({ color: sacrumColor, shininess: 20 })
-            );
+            const sacrumColor = showColors ? regionColors.sacrum : boneColor;
+            const sacrumGeometry = new THREE.ConeGeometry(1.8, 3.5, 4);
+            const sacrumMaterial = new THREE.MeshPhongMaterial({ 
+                color: sacrumColor, 
+                shininess: 15,
+                specular: 0x444444
+            });
+            const sacrum = new THREE.Mesh(sacrumGeometry, sacrumMaterial);
             sacrum.position.y = currentY - 2;
             sacrum.position.z = -0.3;
             sacrum.castShadow = true;
-            currentModel.add(sacrum);
+            sacrum.receiveShadow = true;
+            sacrum.userData = { region: 'sacrum' };
+            spineGroup.add(sacrum);
             
             // COCCYX
-            const coccyxColor = showColors ? 0x9370db : boneColor;
-            const coccyx = new THREE.Mesh(
-                new THREE.ConeGeometry(0.4, 1.0, 4),
-                new THREE.MeshPhongMaterial({ color: coccyxColor, shininess: 20 })
-            );
+            const coccyxColor = showColors ? regionColors.coccyx : boneColor;
+            const coccyxGeometry = new THREE.ConeGeometry(0.4, 1.0, 4);
+            const coccyxMaterial = new THREE.MeshPhongMaterial({ 
+                color: coccyxColor, 
+                shininess: 15,
+                specular: 0x444444
+            });
+            const coccyx = new THREE.Mesh(coccyxGeometry, coccyxMaterial);
             coccyx.position.y = currentY - 4.5;
             coccyx.position.z = -0.5;
             coccyx.castShadow = true;
-            currentModel.add(coccyx);
+            coccyx.receiveShadow = true;
+            coccyx.userData = { region: 'coccyx' };
+            spineGroup.add(coccyx);
             
-            currentModel.position.y = 8;
-            scene.add(currentModel);
-            
-            createLabels([
-                { text: 'Cervical (C1-C7)', position: new THREE.Vector3(2, 8.5, 0) },
-                { text: 'Thoracic (T1-T12)', position: new THREE.Vector3(2.5, 3, -1) },
-                { text: 'Lumbar (L1-L5)', position: new THREE.Vector3(2.5, -2.5, 0) },
-                { text: 'Sacrum (5 fused)', position: new THREE.Vector3(2.5, -6, -0.3) },
-                { text: 'Coccyx (4 fused)', position: new THREE.Vector3(1.5, -9, -0.5) }
-            ]);
+            spineGroup.position.y = 8;
+            scene.add(spineGroup);
         }
         
-        function createSimpleVertebra(size, yPos, color) {
-            const vertebra = new THREE.Group();
-            const material = new THREE.MeshPhongMaterial({ color: color, shininess: 20 });
-            
-            // Body
-            const body = new THREE.Mesh(
-                new THREE.CylinderGeometry(size * 0.4, size * 0.45, size * 0.6, 16),
-                material
-            );
-            body.castShadow = true;
-            vertebra.add(body);
-            
-            // Spinous process
-            const spinous = new THREE.Mesh(
-                new THREE.BoxGeometry(size * 0.15, size * 0.15, size * 0.9),
-                material
-            );
-            spinous.position.set(0, size * 0.15, -size * 0.6);
-            spinous.castShadow = true;
-            vertebra.add(spinous);
-            
-            // Transverse processes
-            const transverseR = new THREE.Mesh(
-                new THREE.BoxGeometry(size * 0.6, size * 0.12, size * 0.2),
-                material
-            );
-            transverseR.position.set(size * 0.5, size * 0.1, -size * 0.1);
-            transverseR.castShadow = true;
-            vertebra.add(transverseR);
-            
-            const transverseL = new THREE.Mesh(
-                new THREE.BoxGeometry(size * 0.6, size * 0.12, size * 0.2),
-                material
-            );
-            transverseL.position.set(-size * 0.5, size * 0.1, -size * 0.1);
-            transverseL.castShadow = true;
-            vertebra.add(transverseL);
-            
-            vertebra.position.y = yPos;
-            return vertebra;
-        }
-        
-        function createLabels(labelData) {
+        function createLabels() {
             const container = document.getElementById('viewer-canvas');
             
-            labelData.forEach(data => {
+            const labels = [
+                { text: 'C1-C7', position: new THREE.Vector3(2, 8.5, 0) },
+                { text: 'T1-T12', position: new THREE.Vector3(2.5, 3, -1) },
+                { text: 'L1-L5', position: new THREE.Vector3(2.5, -2.5, 0) },
+                { text: 'Sacrum', position: new THREE.Vector3(2.5, -6, -0.3) },
+                { text: 'Coccyx', position: new THREE.Vector3(1.5, -9, -0.5) }
+            ];
+            
+            labels.forEach(data => {
                 const marker = document.createElement('div');
                 marker.className = 'label-marker';
                 marker.textContent = data.text;
-                marker.style.display = labelsVisible ? 'block' : 'none';
+                marker.style.display = 'none';
                 container.appendChild(marker);
                 
                 labelMarkers.push({
@@ -1239,13 +1021,6 @@
                     position: data.position
                 });
             });
-        }
-        
-        function clearLabels() {
-            labelMarkers.forEach(label => {
-                label.element.remove();
-            });
-            labelMarkers = [];
         }
         
         function updateLabels() {
@@ -1270,82 +1045,6 @@
             });
         }
         
-        function updateInfoPanel(view) {
-            const info = infoContent[view];
-            const panel = document.getElementById('infoPanel');
-            
-            let html = `
-                <h2 class="panel-title">${info.title}</h2>
-                
-                <div class="instructions-box">
-                    <h3>🎮 Viewer Controls</h3>
-                    <p><strong>Rotate:</strong> Left click + drag<br>
-                    <strong>Zoom:</strong> Scroll wheel<br>
-                    <strong>Pan:</strong> Right click + drag</p>
-                </div>
-                
-                <div class="info-section">
-                    <h3>Overview</h3>
-                    <p>${info.description}</p>
-                </div>
-                
-                <div class="info-section">
-                    <h3>Key Features</h3>
-                    <ul>
-                        ${info.features.map(f => `<li>${f}</li>`).join('')}
-                    </ul>
-                </div>
-                
-                <div class="highlight-box">
-                    <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 8px;">Clinical Significance</h3>
-                    <p>${info.clinical}</p>
-                </div>
-            `;
-            
-            panel.innerHTML = html;
-        }
-        
-        function switchTab(view) {
-            currentView = view;
-            
-            // Update tab buttons
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.closest('.tab-btn').classList.add('active');
-            
-            // Update viewer title
-            const titles = {
-                'atlas': 'Atlas (C1) Vertebra',
-                'axis': 'Axis (C2) Vertebra',
-                'cervical': 'Typical Cervical Vertebra',
-                'spine': 'Complete Vertebral Column'
-            };
-            document.getElementById('viewerTitle').textContent = titles[view];
-            
-            // Build appropriate model
-            switch(view) {
-                case 'atlas':
-                    buildAtlas();
-                    camera.position.set(6, 4, 6);
-                    break;
-                case 'axis':
-                    buildAxis();
-                    camera.position.set(6, 4, 6);
-                    break;
-                case 'cervical':
-                    buildCervical();
-                    camera.position.set(5, 3, 5);
-                    break;
-                case 'spine':
-                    buildFullSpine();
-                    camera.position.set(12, 8, 12);
-                    break;
-            }
-            
-            updateInfoPanel(view);
-            controls.target.set(0, 0, 0);
-            controls.update();
-        }
-        
         function toggleLabels() {
             labelsVisible = !labelsVisible;
             labelMarkers.forEach(label => {
@@ -1356,21 +1055,13 @@
         
         function toggleColors() {
             showColors = !showColors;
-            switchTab(currentView);
-            document.getElementById('colorBtn').textContent = showColors ? 'Hide Colors' : 'Color Parts';
+            scene.remove(spineGroup);
+            buildCompleteSpine();
+            document.getElementById('colorBtn').textContent = showColors ? 'Hide Colors' : 'Color Regions';
         }
         
         function resetView() {
-            switch(currentView) {
-                case 'atlas':
-                case 'axis':
-                case 'cervical':
-                    camera.position.set(6, 4, 6);
-                    break;
-                case 'spine':
-                    camera.position.set(12, 8, 12);
-                    break;
-            }
+            camera.position.set(12, 8, 12);
             controls.target.set(0, 0, 0);
             controls.update();
         }
@@ -1406,9 +1097,7 @@
                 opt.style.pointerEvents = 'none';
             });
             
-            const isCorrect = answerIndex === correctAnswer;
-            
-            if (isCorrect) {
+            if (answerIndex === correctAnswer) {
                 element.classList.add('correct');
             } else {
                 element.classList.add('incorrect');
@@ -1432,7 +1121,6 @@
         }
         
         // Make functions global
-        window.switchTab = switchTab;
         window.toggleLabels = toggleLabels;
         window.toggleColors = toggleColors;
         window.resetView = resetView;
