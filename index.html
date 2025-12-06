@@ -555,13 +555,13 @@
         let selectedVertebra = null;
         let vertebraModelPlaceholder = null; 
 
-        // --- 1. MODEL LOADING LOGIC (Updated for Option B) ---
+        // --- 1. MODEL LOADING LOGIC (Using the correct 'models/vertebra.glb' path) ---
         function loadBaseModel(callback) {
             const loader = new THREE.GLTFLoader();
             document.getElementById('loading').style.display = 'block'; 
 
-            // ⚠️ CRITICAL CHANGE FOR OPTION B: PATH MATCHES YOUR UPLOADED FILE NAME ⚠️
-            loader.load('thoracic_and_lumbar_vertebral_column.glb', (gltf) => {
+            // PATH: Assumes the file is in a LOWERCASES 'models' folder and named 'vertebra.glb'
+            loader.load('models/vertebra.glb', (gltf) => {
                 vertebraModelPlaceholder = gltf.scene; 
                 document.getElementById('loading').style.display = 'none';
                 console.log('3D model loaded successfully!');
@@ -646,7 +646,7 @@
             });
         }
         
-        // --- 4. CORE VERTEBRA CREATION (Scale and Rotation Adjusted) ---
+        // --- 4. CORE VERTEBRA CREATION (SCALE AND ROTATION ADJUSTED HERE) ---
         function createVertebrae() {
             const hasModel = vertebraModelPlaceholder !== null;
             const spacing = 1.8; 
@@ -681,14 +681,15 @@
                         }
                     });
                     
-                    // ⚠️ Suggested Scale/Rotation Adjustments 
-                    // These values are often needed when loading a complex spine model
-                    vertebraMeshGroup.scale.set(0.35, 0.35, 0.35); // Reduced scale for complex model
+                    // ⚠️ AGGRESSIVE SCALE ADJUSTMENT ⚠️
+                    // Scale significantly down to compensate for the large model size
+                    vertebraMeshGroup.scale.set(0.15, 0.15, 0.15); 
                     
-                    // Rotate 90 degrees forward to stand upright (if it was lying flat)
+                    // ⚠️ 90-DEGREE ROTATION FIX ⚠️
+                    // Flips the model 90 degrees forward to make it stand up vertically
                     vertebraMeshGroup.rotation.x = -Math.PI / 2; 
                     
-                    // Rotate slightly for a better starting view
+                    // Adds a slight rotation for a better 3D starting view
                     vertebraMeshGroup.rotation.y = -Math.PI / 4; 
 
                 } else {
