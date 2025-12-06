@@ -389,24 +389,28 @@
         .label-marker {
             position: absolute;
             min-width: 60px;
-            padding: 6px 14px;
-            background: white;
-            color: var(--primary-blue);
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.85rem;
+            padding: 8px 16px;
+            background: rgba(37, 99, 235, 0.95);
+            color: white;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
             cursor: pointer;
             z-index: 100;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            border: 1.5px solid var(--primary-blue);
+            box-shadow: 
+                0 4px 12px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(37, 99, 235, 0.5);
+            border: 2px solid white;
             transition: all 0.2s ease;
             text-align: center;
             white-space: nowrap;
         }
         
         .label-marker:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+            transform: scale(1.1);
+            box-shadow: 
+                0 6px 16px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(37, 99, 235, 0.7);
         }
         
         /* Quiz Section */
@@ -587,7 +591,7 @@
                 </div>
                 <div class="controls">
                     <button class="btn" onclick="toggleLabels()">
-                        <span id="labelBtn">Show Labels</span>
+                        <span id="labelBtn">Hide Labels</span>
                     </button>
                     <button class="btn" onclick="resetView()">
                         <span>Reset View</span>
@@ -768,7 +772,7 @@
         let scene, camera, renderer, controls;
         let vertebraModel;
         let labelMarkers = [];
-        let labelsVisible = false;
+        let labelsVisible = true; // Labels ON by default
         let autoRotate = true;
         const userAnswers = new Array(10).fill(null);
         
@@ -902,31 +906,40 @@
             const container = document.getElementById('viewer-canvas');
             const labeledObjects = [];
             
+            console.log('=== EXTRACTING LABELS FROM MODEL ===');
+            
             // Find all named objects in the scene
             vertebraModel.traverse((child) => {
-                if (child.name && child.name !== '' && child.isMesh) {
-                    // Calculate the center position of this object
-                    const box = new THREE.Box3().setFromObject(child);
-                    const center = box.getCenter(new THREE.Vector3());
+                if (child.name && child.name !== '') {
+                    console.log(`Found object: "${child.name}" (Type: ${child.type}, IsMesh: ${child.isMesh})`);
                     
-                    // Clean up the name (remove numbers, underscores, etc.)
-                    let cleanName = child.name
-                        .replace(/[_-]/g, ' ')
-                        .replace(/\d+/g, '')
-                        .trim()
-                        .split(' ')
-                        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                        .join(' ');
-                    
-                    if (cleanName) {
-                        labeledObjects.push({
-                            name: cleanName,
-                            position: center,
-                            object: child
-                        });
+                    if (child.isMesh) {
+                        // Calculate the center position of this object
+                        const box = new THREE.Box3().setFromObject(child);
+                        const center = box.getCenter(new THREE.Vector3());
+                        
+                        // Clean up the name (remove numbers, underscores, etc.)
+                        let cleanName = child.name
+                            .replace(/[_-]/g, ' ')
+                            .replace(/\d+/g, '')
+                            .trim()
+                            .split(' ')
+                            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                            .join(' ');
+                        
+                        if (cleanName) {
+                            labeledObjects.push({
+                                name: cleanName,
+                                position: center,
+                                object: child
+                            });
+                            console.log(`  → Cleaned name: "${cleanName}" at position:`, center);
+                        }
                     }
                 }
             });
+            
+            console.log(`Total mesh objects found: ${labeledObjects.length}`);
             
             // Remove duplicates and create labels
             const uniqueLabels = [];
@@ -939,12 +952,14 @@
                 }
             });
             
+            console.log(`Unique labels after deduplication: ${uniqueLabels.length}`);
+            
             // Create label markers
             uniqueLabels.forEach(data => {
                 const marker = document.createElement('div');
                 marker.className = 'label-marker';
                 marker.textContent = data.name;
-                marker.style.display = 'none';
+                marker.style.display = 'block'; // Visible by default
                 container.appendChild(marker);
                 
                 labelMarkers.push({
@@ -955,30 +970,46 @@
             
             console.log('Created labels for:', uniqueLabels.map(l => l.name));
             
-            // If no labels found, create default positional labels
-            if (labelMarkers.length === 0) {
+            // If no labels or very few labels found, create default positional labels
+            if (labelMarkers.length < 3) {
+                console.log('⚠️ Very few labels found in model, adding default anatomical labels');
                 createDefaultLabels();
             }
+            
+            console.log(`=== TOTAL LABELS: ${labelMarkers.length} ===`);
         }
         
         function createDefaultLabels() {
             const container = document.getElementById('viewer-canvas');
             
-            // Default label positions for atlas vertebra
+            // Calculate bounding box if model exists
+            let modelSize = 2;
+            let modelCenter = new THREE.Vector3(0, 0, 0);
+            
+            if (vertebraModel) {
+                const box = new THREE.Box3().setFromObject(vertebraModel);
+                modelCenter = box.getCenter(new THREE.Vector3());
+                const size = box.getSize(new THREE.Vector3());
+                modelSize = Math.max(size.x, size.y, size.z);
+            }
+            
+            // Strategic label positions around the atlas vertebra
             const defaultLabels = [
-                { text: 'Anterior Arch', position: new THREE.Vector3(0, 0, 2) },
-                { text: 'Posterior Arch', position: new THREE.Vector3(0, 0.5, -2) },
-                { text: 'Lateral Mass (R)', position: new THREE.Vector3(2, 0, 0) },
-                { text: 'Lateral Mass (L)', position: new THREE.Vector3(-2, 0, 0) },
-                { text: 'Transverse Process', position: new THREE.Vector3(2.5, 0, 0.5) },
-                { text: 'Vertebral Foramen', position: new THREE.Vector3(0, 0, 0) }
+                { text: 'Anterior Arch', position: new THREE.Vector3(modelCenter.x, modelCenter.y, modelCenter.z + modelSize * 0.8) },
+                { text: 'Posterior Arch', position: new THREE.Vector3(modelCenter.x, modelCenter.y + modelSize * 0.3, modelCenter.z - modelSize * 0.8) },
+                { text: 'Lateral Mass (Right)', position: new THREE.Vector3(modelCenter.x + modelSize * 0.8, modelCenter.y, modelCenter.z) },
+                { text: 'Lateral Mass (Left)', position: new THREE.Vector3(modelCenter.x - modelSize * 0.8, modelCenter.y, modelCenter.z) },
+                { text: 'Transverse Process (R)', position: new THREE.Vector3(modelCenter.x + modelSize * 1.0, modelCenter.y - modelSize * 0.2, modelCenter.z + modelSize * 0.2) },
+                { text: 'Transverse Process (L)', position: new THREE.Vector3(modelCenter.x - modelSize * 1.0, modelCenter.y - modelSize * 0.2, modelCenter.z + modelSize * 0.2) },
+                { text: 'Vertebral Foramen', position: new THREE.Vector3(modelCenter.x, modelCenter.y - modelSize * 0.1, modelCenter.z) },
+                { text: 'Superior Articular Facet', position: new THREE.Vector3(modelCenter.x + modelSize * 0.5, modelCenter.y + modelSize * 0.4, modelCenter.z - modelSize * 0.3) }
             ];
             
             defaultLabels.forEach(data => {
                 const marker = document.createElement('div');
                 marker.className = 'label-marker';
                 marker.textContent = data.text;
-                marker.style.display = 'none';
+                marker.style.display = 'block'; // Visible by default
                 container.appendChild(marker);
                 
                 labelMarkers.push({
@@ -986,6 +1017,8 @@
                     position: data.position
                 });
             });
+            
+            console.log('Created default labels:', defaultLabels.length);
         }
         
         function updateLabels() {
