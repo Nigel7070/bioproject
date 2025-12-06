@@ -6,6 +6,7 @@
     <title>Interactive Vertebral Column Anatomy (Enhanced Realism)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
     <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     
@@ -238,7 +239,6 @@
 
         /* Quiz Overlay */
         .quiz-overlay {
-            /* ... (Quiz styles remain the same for functionality) ... */
             position: fixed;
             top: 0;
             left: 0;
@@ -266,6 +266,28 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
         }
 
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .quiz-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+
+        .quiz-progress {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            background: rgba(26, 84, 144, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+        }
+
         .question-text {
             font-size: 1.25rem;
             font-weight: 500;
@@ -290,8 +312,85 @@
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             font-size: 1rem;
         }
-        
-        /* ... (rest of the quiz styles) ... */
+
+        .option:hover {
+            background: rgba(26, 84, 144, 0.25);
+            border-color: var(--accent-cyan);
+            transform: translateX(8px);
+        }
+
+        .option.selected {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: var(--accent-cyan);
+        }
+
+        .option.correct {
+            background: rgba(80, 200, 120, 0.2);
+            border-color: #50c878;
+        }
+
+        .option.incorrect {
+            background: rgba(231, 76, 60, 0.2);
+            border-color: #e74c3c;
+        }
+
+        .quiz-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .quiz-btn {
+            flex: 1;
+            padding: 1rem;
+            border-radius: 12px;
+            border: none;
+            font-family: 'Source Sans 3', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quiz-btn-next {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--primary-blue));
+            color: white;
+        }
+
+        .quiz-btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+        }
+
+        .quiz-btn-close {
+            background: rgba(26, 84, 144, 0.2);
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+        }
+
+        .quiz-btn-close:hover {
+            background: rgba(26, 84, 144, 0.4);
+        }
+
+        .quiz-result {
+            text-align: center;
+            animation: fadeIn 0.5s;
+        }
+
+        .quiz-score {
+            font-family: 'Outfit', sans-serif;
+            font-size: 4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--primary-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 2rem 0;
+        }
+
+        .quiz-message {
+            font-size: 1.25rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
 
         /* Loading Animation */
         .loading {
@@ -390,7 +489,7 @@
     </div>
 
     <script>
-        // Data Definitions (Same as previous versions)
+        // Data Definitions
         const vertebraeData = [
             { name: 'C1 (Atlas)', region: 'Cervical', color: '#4a90e2', description: 'First cervical vertebra that supports the skull and allows nodding motion', features: 'Ring-shaped, no vertebral body, articulates with occipital bone' },
             { name: 'C2 (Axis)', region: 'Cervical', color: '#4a90e2', description: 'Second cervical vertebra with odontoid process (dens)', features: 'Dens allows rotational movement of the head' },
@@ -400,4 +499,11 @@
             { name: 'C6', region: 'Cervical', color: '#4a90e2', description: 'Sixth cervical vertebra', features: 'Carotid tubercle landmark on transverse process' },
             { name: 'C7 (Vertebra Prominens)', region: 'Cervical', color: '#4a90e2', description: 'Seventh cervical vertebra, transition to thoracic', features: 'Long, non-bifid spinous process, easily palpable' },
             { name: 'T1', region: 'Thoracic', color: '#50c878', description: 'First thoracic vertebra', features: 'Articulates with 1st rib, costal facets present' },
-            { name: 'T2', region: 'Thoracic', color: '#50c878', description: 'Second thoracic vertebra',
+            { name: 'T2', region: 'Thoracic', color: '#50c878', description: 'Second thoracic vertebra', features: 'Heart-shaped body, costal facets' },
+            { name: 'T3', region: 'Thoracic', color: '#50c878', description: 'Third thoracic vertebra', features: 'Articulates with ribs' },
+            { name: 'T4', region: 'Thoracic', color: '#50c878', description: 'Fourth thoracic vertebra', features: 'Sternal angle level landmark' },
+            { name: 'T5', region: 'Thoracic', color: '#50c878', description: 'Fifth thoracic vertebra', features: 'Mid-thoracic region' },
+            { name: 'T6', region: 'Thoracic', color: '#50c878', description: 'Sixth thoracic vertebra', features: 'Mid-thoracic region' },
+            { name: 'T7', region: 'Thoracic', color: '#50c878', description: 'Seventh thoracic vertebra', features: 'Inferior angle of scapula level' },
+            { name: 'T8', region: 'Thoracic', color: '#50c878', description: 'Eighth thoracic vertebra', features: 'Mid to lower thoracic' },
+            { name: 'T
