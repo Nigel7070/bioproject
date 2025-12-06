@@ -1,20 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XESCMS7KJR"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-XESCMS7KJR');
-</script>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vertebral Column - Interactive 3D Anatomy</title>
+    
+    <!-- Google Analytics 4 (GA4) -->
+    <!-- REPLACE 'G-XXXXXXXXXX' WITH YOUR ACTUAL MEASUREMENT ID -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
+    <!-- End Google Analytics -->
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         
@@ -168,6 +169,31 @@
             background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
             border: 1px solid var(--border-light);
             position: relative;
+        }
+        
+        .loading-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+        
+        .spinner {
+            border: 4px solid var(--border-light);
+            border-top: 4px solid var(--primary-blue);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         .controls {
@@ -375,6 +401,7 @@
             border: 1.5px solid var(--primary-blue);
             transition: all 0.2s ease;
             text-align: center;
+            white-space: nowrap;
         }
         
         .label-marker:hover {
@@ -540,34 +567,11 @@
     <div class="container">
         <header>
             <div class="header-content">
-                <h1>Vertebral Column Anatomy</h1>
+                <h1>Atlas Vertebra Anatomy</h1>
                 <p class="subtitle">Interactive 3D Educational Model</p>
-                <span class="badge">33 Vertebrae • 5 Regions • Medical Grade Visualization</span>
+                <span class="badge">First Cervical Vertebra (C1) • Detailed Anatomical Visualization</span>
             </div>
         </header>
-        
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number">33</div>
-                <div class="stat-label">Total Vertebrae</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">7</div>
-                <div class="stat-label">Cervical</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">12</div>
-                <div class="stat-label">Thoracic</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">5</div>
-                <div class="stat-label">Lumbar</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">5+4</div>
-                <div class="stat-label">Sacrum + Coccyx</div>
-            </div>
-        </div>
         
         <div class="main-grid">
             <div class="viewer-card">
@@ -575,7 +579,12 @@
                     <h2 class="card-title">3D Model Viewer</h2>
                     <span class="view-badge">Interactive</span>
                 </div>
-                <div id="viewer-canvas"></div>
+                <div id="viewer-canvas">
+                    <div class="loading-indicator" id="loadingIndicator">
+                        <div class="spinner"></div>
+                        <div>Loading 3D Model...</div>
+                    </div>
+                </div>
                 <div class="controls">
                     <button class="btn" onclick="toggleLabels()">
                         <span id="labelBtn">Show Labels</span>
@@ -586,14 +595,11 @@
                     <button class="btn" onclick="toggleRotation()">
                         <span id="rotateBtn">Pause Rotation</span>
                     </button>
-                    <button class="btn btn-primary" onclick="toggleColors()">
-                        <span id="colorBtn">Color Regions</span>
-                    </button>
                 </div>
             </div>
             
             <div class="info-panel">
-                <h2 class="panel-title">Spinal Regions</h2>
+                <h2 class="panel-title">Atlas Vertebra (C1)</h2>
                 
                 <div class="instructions-box">
                     <h3>🎯 Viewer Controls</h3>
@@ -604,42 +610,27 @@
                 
                 <div class="region-group">
                     <div class="region-header region-cervical">
-                        <div class="region-icon">C</div>
-                        <span class="region-title-text">Cervical (C1-C7)</span>
+                        <div class="region-icon">C1</div>
+                        <span class="region-title-text">Atlas Vertebra</span>
                     </div>
-                    <p class="region-description">Seven vertebrae in the neck region. Smallest and most mobile vertebrae allowing head rotation and flexion. C1 (Atlas) supports the skull, while C2 (Axis) enables rotational movement.</p>
+                    <p class="region-description">The atlas (C1) is the first cervical vertebra, forming the joint connecting the skull and spine. It supports the weight of the head and allows nodding movements (yes motion).</p>
                 </div>
                 
                 <div class="region-group">
-                    <div class="region-header region-thoracic">
-                        <div class="region-icon">T</div>
-                        <span class="region-title-text">Thoracic (T1-T12)</span>
-                    </div>
-                    <p class="region-description">Twelve vertebrae in the chest region that articulate with ribs, forming the thoracic cage. Medium-sized with limited mobility to provide stability and protect vital organs.</p>
+                    <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 10px; color: var(--text-primary);">Key Features:</h3>
+                    <ul style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8; padding-left: 20px;">
+                        <li><strong>No vertebral body:</strong> Unique ring-shaped structure</li>
+                        <li><strong>Anterior arch:</strong> Front portion with facet for dens</li>
+                        <li><strong>Posterior arch:</strong> Back portion with groove for vertebral artery</li>
+                        <li><strong>Lateral masses:</strong> Bear weight of the head</li>
+                        <li><strong>Transverse processes:</strong> Contain transverse foramen</li>
+                        <li><strong>Superior articular facets:</strong> Articulate with occipital condyles</li>
+                    </ul>
                 </div>
                 
-                <div class="region-group">
-                    <div class="region-header region-lumbar">
-                        <div class="region-icon">L</div>
-                        <span class="region-title-text">Lumbar (L1-L5)</span>
-                    </div>
-                    <p class="region-description">Five vertebrae in the lower back. Largest and strongest vertebrae, bearing most of the body's weight. Allow significant flexion and extension of the trunk.</p>
-                </div>
-                
-                <div class="region-group">
-                    <div class="region-header region-sacral">
-                        <div class="region-icon">S</div>
-                        <span class="region-title-text">Sacrum (5 fused)</span>
-                    </div>
-                    <p class="region-description">Five fused vertebrae forming a triangular bone. Connects the spine to the pelvis through the sacroiliac joints and transmits body weight to the hip bones.</p>
-                </div>
-                
-                <div class="region-group">
-                    <div class="region-header region-coccyx">
-                        <div class="region-icon">Co</div>
-                        <span class="region-title-text">Coccyx (3-5 fused)</span>
-                    </div>
-                    <p class="region-description">Three to five fused vertebrae forming the tailbone. Vestigial structure providing attachment points for ligaments and muscles of the pelvic floor.</p>
+                <div class="region-group" style="margin-top: 20px;">
+                    <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 10px; color: var(--text-primary);">Clinical Significance:</h3>
+                    <p class="region-description">Atlas fractures (Jefferson fractures) can occur from vertical compression. The atlas lacks a spinous process and has unique anatomy crucial for head movement and stability.</p>
                 </div>
             </div>
         </div>
@@ -755,7 +746,7 @@
         </div>
         
         <footer>
-            <p>Interactive Vertebral Column Anatomy • Educational 3D Model • Medical Grade Visualization</p>
+            <p>Interactive Atlas Vertebra Anatomy • Educational 3D Model • Medical Grade Visualization</p>
             <p style="margin-top: 8px; font-size: 0.85rem;">Developed for educational purposes</p>
         </footer>
     </div>
@@ -772,26 +763,14 @@
     <script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
         
         let scene, camera, renderer, controls;
-        let spineGroup;
+        let vertebraModel;
         let labelMarkers = [];
         let labelsVisible = false;
         let autoRotate = true;
-        let showColors = false;
         const userAnswers = new Array(10).fill(null);
-        
-        // Professional bone color
-        const boneColor = 0xe8dcc8;
-        
-        // Soft pastel region colors
-        const regionColors = {
-            cervical: 0xfbbf24,    // Amber
-            thoracic: 0x10b981,    // Emerald
-            lumbar: 0x3b82f6,      // Blue
-            sacrum: 0xec4899,      // Pink
-            coccyx: 0xa855f7       // Purple
-        };
         
         function init() {
             const container = document.getElementById('viewer-canvas');
@@ -799,11 +778,11 @@
             // Scene
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0xf8fafc);
-            scene.fog = new THREE.Fog(0xf8fafc, 20, 50);
+            scene.fog = new THREE.Fog(0xf8fafc, 10, 50);
             
             // Camera
-            camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
-            camera.position.set(12, 8, 12);
+            camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(5, 3, 5);
             
             // Renderer
             renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -813,44 +792,39 @@
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             container.appendChild(renderer.domElement);
             
-            // Professional lighting setup
+            // Professional lighting
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
             scene.add(ambientLight);
             
             const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
-            directionalLight1.position.set(10, 15, 10);
+            directionalLight1.position.set(5, 5, 5);
             directionalLight1.castShadow = true;
-            directionalLight1.shadow.mapSize.width = 2048;
-            directionalLight1.shadow.mapSize.height = 2048;
             scene.add(directionalLight1);
             
             const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
-            directionalLight2.position.set(-10, 10, -10);
+            directionalLight2.position.set(-5, 3, -5);
             scene.add(directionalLight2);
             
             const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
-            fillLight.position.set(0, -5, 0);
+            fillLight.position.set(0, -2, 0);
             scene.add(fillLight);
             
-            // Subtle grid
-            const gridHelper = new THREE.GridHelper(30, 30, 0xe2e8f0, 0xf1f5f9);
-            gridHelper.position.y = -12;
+            // Grid
+            const gridHelper = new THREE.GridHelper(10, 10, 0xe2e8f0, 0xf1f5f9);
+            gridHelper.position.y = -3;
             scene.add(gridHelper);
             
             // OrbitControls
             controls = new OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
-            controls.minDistance = 8;
-            controls.maxDistance = 30;
+            controls.minDistance = 2;
+            controls.maxDistance = 15;
             controls.autoRotate = true;
-            controls.autoRotateSpeed = 1.5;
+            controls.autoRotateSpeed = 2.0;
             
-            // Build spine
-            buildCompleteSpine();
-            
-            // Create labels
-            createLabels();
+            // Load the GLB model
+            loadModel();
             
             // Handle resize
             window.addEventListener('resize', onWindowResize);
@@ -859,157 +833,148 @@
             animate();
         }
         
-        function createVertebra(size, yPos, color) {
-            const vertebraGroup = new THREE.Group();
+        function loadModel() {
+            const loader = new GLTFLoader();
             
-            // Vertebral body - more anatomically accurate
-            const bodyGeometry = new THREE.CylinderGeometry(size * 0.4, size * 0.45, size * 0.6, 20);
-            const bodyMaterial = new THREE.MeshPhongMaterial({ 
-                color: color, 
-                shininess: 15,
-                specular: 0x444444
-            });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.castShadow = true;
-            body.receiveShadow = true;
-            vertebraGroup.add(body);
-            
-            // Spinous process
-            const spinousGeometry = new THREE.BoxGeometry(size * 0.15, size * 0.15, size * 0.9);
-            const spinousMaterial = new THREE.MeshPhongMaterial({ 
-                color: color, 
-                shininess: 15,
-                specular: 0x444444
-            });
-            const spinous = new THREE.Mesh(spinousGeometry, spinousMaterial);
-            spinous.position.set(0, size * 0.15, -size * 0.6);
-            spinous.castShadow = true;
-            spinous.receiveShadow = true;
-            vertebraGroup.add(spinous);
-            
-            // Transverse processes
-            const transverseGeometry = new THREE.BoxGeometry(size * 0.6, size * 0.12, size * 0.2);
-            const transverseMaterial = new THREE.MeshPhongMaterial({ 
-                color: color, 
-                shininess: 15,
-                specular: 0x444444
-            });
-            
-            const transverseRight = new THREE.Mesh(transverseGeometry, transverseMaterial);
-            transverseRight.position.set(size * 0.5, size * 0.1, -size * 0.1);
-            transverseRight.castShadow = true;
-            transverseRight.receiveShadow = true;
-            vertebraGroup.add(transverseRight);
-            
-            const transverseLeft = new THREE.Mesh(transverseGeometry, transverseMaterial.clone());
-            transverseLeft.position.set(-size * 0.5, size * 0.1, -size * 0.1);
-            transverseLeft.castShadow = true;
-            transverseLeft.receiveShadow = true;
-            vertebraGroup.add(transverseLeft);
-            
-            // Vertebral arch
-            const archGeometry = new THREE.TorusGeometry(size * 0.25, size * 0.08, 12, 20, Math.PI);
-            const archMaterial = new THREE.MeshPhongMaterial({ 
-                color: color, 
-                shininess: 15,
-                specular: 0x444444
-            });
-            const arch = new THREE.Mesh(archGeometry, archMaterial);
-            arch.rotation.x = Math.PI / 2;
-            arch.position.set(0, 0, -size * 0.15);
-            arch.castShadow = true;
-            arch.receiveShadow = true;
-            vertebraGroup.add(arch);
-            
-            vertebraGroup.position.y = yPos;
-            return vertebraGroup;
+            loader.load(
+                'atlas_vertebrae_labeled_final.glb',
+                function (gltf) {
+                    vertebraModel = gltf.scene;
+                    
+                    // Center and scale the model
+                    const box = new THREE.Box3().setFromObject(vertebraModel);
+                    const center = box.getCenter(new THREE.Vector3());
+                    const size = box.getSize(new THREE.Vector3());
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    const scale = 4 / maxDim;
+                    
+                    vertebraModel.scale.multiplyScalar(scale);
+                    vertebraModel.position.sub(center.multiplyScalar(scale));
+                    
+                    // Apply nice material to all meshes
+                    vertebraModel.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material = new THREE.MeshPhongMaterial({
+                                color: 0xe8dcc8,
+                                shininess: 15,
+                                specular: 0x444444
+                            });
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                        }
+                    });
+                    
+                    scene.add(vertebraModel);
+                    
+                    // Hide loading indicator
+                    document.getElementById('loadingIndicator').style.display = 'none';
+                    
+                    // Extract object names and create labels
+                    extractAndCreateLabels();
+                    
+                    console.log('Model loaded successfully!');
+                    console.log('Objects in model:', getObjectNames(gltf.scene));
+                },
+                function (xhr) {
+                    const percentComplete = (xhr.loaded / xhr.total * 100).toFixed(0);
+                    console.log(percentComplete + '% loaded');
+                },
+                function (error) {
+                    console.error('Error loading model:', error);
+                    document.getElementById('loadingIndicator').innerHTML = 
+                        '<div style="color: #dc2626; padding: 20px;"><strong>Error Loading Model</strong><br><br>' +
+                        'Make sure "atlas_vertebrae_labeled_final.glb" is in the same folder as this HTML file.</div>';
+                }
+            );
         }
         
-        function buildCompleteSpine() {
-            spineGroup = new THREE.Group();
-            let currentY = 0;
-            const spacing = 0.7;
-            
-            // CERVICAL (C1-C7)
-            const cervicalColor = showColors ? regionColors.cervical : boneColor;
-            for (let i = 0; i < 7; i++) {
-                const size = 0.8 + i * 0.05;
-                const vertebra = createVertebra(size, currentY, cervicalColor);
-                vertebra.userData = { region: 'cervical', number: i + 1 };
-                spineGroup.add(vertebra);
-                currentY -= spacing;
-            }
-            
-            // THORACIC (T1-T12)
-            const thoracicColor = showColors ? regionColors.thoracic : boneColor;
-            for (let i = 0; i < 12; i++) {
-                const size = 1.0 + i * 0.05;
-                const vertebra = createVertebra(size, currentY, thoracicColor);
-                vertebra.position.z = -i * 0.08;
-                vertebra.userData = { region: 'thoracic', number: i + 1 };
-                spineGroup.add(vertebra);
-                currentY -= spacing;
-            }
-            
-            // LUMBAR (L1-L5)
-            const lumbarColor = showColors ? regionColors.lumbar : boneColor;
-            for (let i = 0; i < 5; i++) {
-                const size = 1.5 + i * 0.08;
-                const vertebra = createVertebra(size, currentY, lumbarColor);
-                vertebra.position.z = -0.96 + i * 0.12;
-                vertebra.userData = { region: 'lumbar', number: i + 1 };
-                spineGroup.add(vertebra);
-                currentY -= spacing * 1.2;
-            }
-            
-            // SACRUM
-            const sacrumColor = showColors ? regionColors.sacrum : boneColor;
-            const sacrumGeometry = new THREE.ConeGeometry(1.8, 3.5, 4);
-            const sacrumMaterial = new THREE.MeshPhongMaterial({ 
-                color: sacrumColor, 
-                shininess: 15,
-                specular: 0x444444
+        function getObjectNames(object) {
+            const names = [];
+            object.traverse((child) => {
+                if (child.name && child.name !== '') {
+                    names.push(child.name);
+                }
             });
-            const sacrum = new THREE.Mesh(sacrumGeometry, sacrumMaterial);
-            sacrum.position.y = currentY - 2;
-            sacrum.position.z = -0.3;
-            sacrum.castShadow = true;
-            sacrum.receiveShadow = true;
-            sacrum.userData = { region: 'sacrum' };
-            spineGroup.add(sacrum);
-            
-            // COCCYX
-            const coccyxColor = showColors ? regionColors.coccyx : boneColor;
-            const coccyxGeometry = new THREE.ConeGeometry(0.4, 1.0, 4);
-            const coccyxMaterial = new THREE.MeshPhongMaterial({ 
-                color: coccyxColor, 
-                shininess: 15,
-                specular: 0x444444
-            });
-            const coccyx = new THREE.Mesh(coccyxGeometry, coccyxMaterial);
-            coccyx.position.y = currentY - 4.5;
-            coccyx.position.z = -0.5;
-            coccyx.castShadow = true;
-            coccyx.receiveShadow = true;
-            coccyx.userData = { region: 'coccyx' };
-            spineGroup.add(coccyx);
-            
-            spineGroup.position.y = 8;
-            scene.add(spineGroup);
+            return names;
         }
         
-        function createLabels() {
+        function extractAndCreateLabels() {
+            const container = document.getElementById('viewer-canvas');
+            const labeledObjects = [];
+            
+            // Find all named objects in the scene
+            vertebraModel.traverse((child) => {
+                if (child.name && child.name !== '' && child.isMesh) {
+                    // Calculate the center position of this object
+                    const box = new THREE.Box3().setFromObject(child);
+                    const center = box.getCenter(new THREE.Vector3());
+                    
+                    // Clean up the name (remove numbers, underscores, etc.)
+                    let cleanName = child.name
+                        .replace(/[_-]/g, ' ')
+                        .replace(/\d+/g, '')
+                        .trim()
+                        .split(' ')
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                        .join(' ');
+                    
+                    if (cleanName) {
+                        labeledObjects.push({
+                            name: cleanName,
+                            position: center,
+                            object: child
+                        });
+                    }
+                }
+            });
+            
+            // Remove duplicates and create labels
+            const uniqueLabels = [];
+            const seenNames = new Set();
+            
+            labeledObjects.forEach(obj => {
+                if (!seenNames.has(obj.name)) {
+                    seenNames.add(obj.name);
+                    uniqueLabels.push(obj);
+                }
+            });
+            
+            // Create label markers
+            uniqueLabels.forEach(data => {
+                const marker = document.createElement('div');
+                marker.className = 'label-marker';
+                marker.textContent = data.name;
+                marker.style.display = 'none';
+                container.appendChild(marker);
+                
+                labelMarkers.push({
+                    element: marker,
+                    position: data.position.clone()
+                });
+            });
+            
+            console.log('Created labels for:', uniqueLabels.map(l => l.name));
+            
+            // If no labels found, create default positional labels
+            if (labelMarkers.length === 0) {
+                createDefaultLabels();
+            }
+        }
+        
+        function createDefaultLabels() {
             const container = document.getElementById('viewer-canvas');
             
-            const labels = [
-                { text: 'C1-C7', position: new THREE.Vector3(2, 8.5, 0) },
-                { text: 'T1-T12', position: new THREE.Vector3(2.5, 3, -1) },
-                { text: 'L1-L5', position: new THREE.Vector3(2.5, -2.5, 0) },
-                { text: 'Sacrum', position: new THREE.Vector3(2.5, -6, -0.3) },
-                { text: 'Coccyx', position: new THREE.Vector3(1.5, -9, -0.5) }
+            // Default label positions for atlas vertebra
+            const defaultLabels = [
+                { text: 'Anterior Arch', position: new THREE.Vector3(0, 0, 2) },
+                { text: 'Posterior Arch', position: new THREE.Vector3(0, 0.5, -2) },
+                { text: 'Lateral Mass (R)', position: new THREE.Vector3(2, 0, 0) },
+                { text: 'Lateral Mass (L)', position: new THREE.Vector3(-2, 0, 0) },
+                { text: 'Transverse Process', position: new THREE.Vector3(2.5, 0, 0.5) },
+                { text: 'Vertebral Foramen', position: new THREE.Vector3(0, 0, 0) }
             ];
             
-            labels.forEach(data => {
+            defaultLabels.forEach(data => {
                 const marker = document.createElement('div');
                 marker.className = 'label-marker';
                 marker.textContent = data.text;
@@ -1035,6 +1000,7 @@
                 label.element.style.top = y + 'px';
                 label.element.style.transform = 'translate(-50%, -50%)';
                 
+                // Hide if behind or off-screen
                 if (vector.z > 1 || x < 0 || x > renderer.domElement.clientWidth || y < 0 || y > renderer.domElement.clientHeight) {
                     label.element.style.opacity = '0';
                     label.element.style.pointerEvents = 'none';
@@ -1051,25 +1017,38 @@
                 label.element.style.display = labelsVisible ? 'block' : 'none';
             });
             document.getElementById('labelBtn').textContent = labelsVisible ? 'Hide Labels' : 'Show Labels';
-        }
-        
-        function toggleColors() {
-            showColors = !showColors;
-            scene.remove(spineGroup);
-            buildCompleteSpine();
-            document.getElementById('colorBtn').textContent = showColors ? 'Hide Colors' : 'Color Regions';
+            
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'toggle_labels', {
+                    'event_category': '3D_Viewer',
+                    'event_label': labelsVisible ? 'Show' : 'Hide'
+                });
+            }
         }
         
         function resetView() {
-            camera.position.set(12, 8, 12);
+            camera.position.set(5, 3, 5);
             controls.target.set(0, 0, 0);
             controls.update();
+            
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'reset_view', {
+                    'event_category': '3D_Viewer'
+                });
+            }
         }
         
         function toggleRotation() {
             autoRotate = !autoRotate;
             controls.autoRotate = autoRotate;
             document.getElementById('rotateBtn').textContent = autoRotate ? 'Pause Rotation' : 'Resume Rotation';
+            
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'toggle_rotation', {
+                    'event_category': '3D_Viewer',
+                    'event_label': autoRotate ? 'Resume' : 'Pause'
+                });
+            }
         }
         
         function onWindowResize() {
@@ -1097,7 +1076,9 @@
                 opt.style.pointerEvents = 'none';
             });
             
-            if (answerIndex === correctAnswer) {
+            const isCorrect = answerIndex === correctAnswer;
+            
+            if (isCorrect) {
                 element.classList.add('correct');
             } else {
                 element.classList.add('incorrect');
@@ -1105,6 +1086,14 @@
             }
             
             userAnswers[questionIndex] = answerIndex;
+            
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'quiz_question_answered', {
+                    'event_category': 'Quiz',
+                    'event_label': 'Question_' + (questionIndex + 1),
+                    'value': isCorrect ? 1 : 0
+                });
+            }
             
             if (userAnswers.every(ans => ans !== null)) {
                 const score = userAnswers.filter((ans, idx) => {
@@ -1117,12 +1106,18 @@
                 document.getElementById('scorePercentage').textContent = percentage + '% Correct';
                 document.getElementById('scoreDisplay').style.display = 'block';
                 document.getElementById('scoreDisplay').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'quiz_completed', {
+                        'event_category': 'Quiz',
+                        'value': score
+                    });
+                }
             }
         }
         
         // Make functions global
         window.toggleLabels = toggleLabels;
-        window.toggleColors = toggleColors;
         window.resetView = resetView;
         window.toggleRotation = toggleRotation;
         window.checkAnswer = checkAnswer;
