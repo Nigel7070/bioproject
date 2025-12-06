@@ -581,8 +581,20 @@
         </footer>
     </div>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        
         // Three.js setup
         let scene, camera, renderer, controls, vertebraModel;
         let labelsVisible = true;
@@ -634,7 +646,7 @@
             scene.add(pointLight);
             
             // OrbitControls
-            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls = new OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
             controls.minDistance = 2;
@@ -643,7 +655,7 @@
             controls.autoRotateSpeed = 1.5;
             
             // Load GLB model
-            const loader = new THREE.GLTFLoader();
+            const loader = new GLTFLoader();
             loader.load(
                 '/mnt/user-data/uploads/vertebra.glb',
                 function (gltf) {
@@ -751,6 +763,11 @@
             document.getElementById('rotateBtn').textContent = autoRotate ? '⏸️ Pause Rotation' : '▶️ Resume Rotation';
         }
         
+        // Make functions globally accessible
+        window.toggleLabels = toggleLabels;
+        window.resetCamera = resetCamera;
+        window.toggleRotation = toggleRotation;
+        
         function onWindowResize() {
             const container = document.getElementById('canvas-container');
             camera.aspect = container.clientWidth / container.clientHeight;
@@ -795,6 +812,9 @@
             updateScore();
         }
         
+        // Make quiz function globally accessible
+        window.selectAnswer = selectAnswer;
+        
         function updateScore() {
             const answeredQuestions = userAnswers.filter(ans => ans !== null).length;
             
@@ -817,330 +837,6 @@
         
         // Start the application
         init();
-    </script>
-    
-    <script>
-        // GLTFLoader for Three.js r128
-        THREE.GLTFLoader = (function() {
-            function GLTFLoader(manager) {
-                this.manager = (manager !== undefined) ? manager : THREE.DefaultLoadingManager;
-            }
-            
-            GLTFLoader.prototype = {
-                load: function(url, onLoad, onProgress, onError) {
-                    const scope = this;
-                    const loader = new THREE.FileLoader(scope.manager);
-                    loader.setPath(this.path);
-                    loader.setResponseType('arraybuffer');
-                    
-                    loader.load(url, function(data) {
-                        try {
-                            scope.parse(data, onLoad);
-                        } catch (e) {
-                            if (onError) {
-                                onError(e);
-                            } else {
-                                console.error(e);
-                            }
-                        }
-                    }, onProgress, onError);
-                },
-                
-                setPath: function(value) {
-                    this.path = value;
-                    return this;
-                },
-                
-                parse: function(data, onLoad) {
-                    const json = this.decodeGLB(data);
-                    const parser = new GLTFParser(json);
-                    parser.parse(onLoad);
-                }
-            };
-            
-            GLTFLoader.prototype.decodeGLB = function(data) {
-                const UINT32_LENGTH = 4;
-                const GLB_HEADER_MAGIC = 0x46546C67;
-                const GLB_HEADER_LENGTH = 12;
-                const GLB_CHUNK_TYPES = { JSON: 0x4E4F534A, BIN: 0x004E4942 };
-                
-                const header = new DataView(data, 0, GLB_HEADER_LENGTH);
-                
-                if (header.getUint32(0, true) !== GLB_HEADER_MAGIC) {
-                    throw new Error('Invalid GLB file');
-                }
-                
-                const jsonChunkLength = header.getUint32(GLB_HEADER_LENGTH, true);
-                const jsonChunkType = header.getUint32(GLB_HEADER_LENGTH + UINT32_LENGTH, true);
-                
-                if (jsonChunkType !== GLB_CHUNK_TYPES.JSON) {
-                    throw new Error('Invalid GLB JSON chunk');
-                }
-                
-                const jsonData = new Uint8Array(data, GLB_HEADER_LENGTH + 2 * UINT32_LENGTH, jsonChunkLength);
-                const jsonText = new TextDecoder().decode(jsonData);
-                const json = JSON.parse(jsonText);
-                
-                const binaryOffset = GLB_HEADER_LENGTH + 2 * UINT32_LENGTH + jsonChunkLength;
-                
-                if (binaryOffset < data.byteLength) {
-                    const binaryChunkLength = new DataView(data, binaryOffset, UINT32_LENGTH).getUint32(0, true);
-                    json.buffers = [{
-                        byteLength: binaryChunkLength,
-                        uri: new Uint8Array(data, binaryOffset + 2 * UINT32_LENGTH, binaryChunkLength)
-                    }];
-                }
-                
-                return json;
-            };
-            
-            function GLTFParser(json) {
-                this.json = json;
-            }
-            
-            GLTFParser.prototype = {
-                parse: function(onLoad) {
-                    const group = new THREE.Group();
-                    
-                    if (this.json.meshes) {
-                        this.json.meshes.forEach(meshDef => {
-                            const mesh = this.parseMesh(meshDef);
-                            if (mesh) group.add(mesh);
-                        });
-                    }
-                    
-                    onLoad({ scene: group, scenes: [group] });
-                },
-                
-                parseMesh: function(meshDef) {
-                    const group = new THREE.Group();
-                    
-                    if (meshDef.primitives) {
-                        meshDef.primitives.forEach(primitive => {
-                            const geometry = new THREE.BufferGeometry();
-                            const material = new THREE.MeshPhongMaterial({ color: 0xcccccc });
-                            
-                            // Simple geometry creation
-                            if (primitive.attributes && primitive.attributes.POSITION !== undefined) {
-                                const posAccessor = this.json.accessors[primitive.attributes.POSITION];
-                                const positions = this.getAccessorData(posAccessor);
-                                geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-                            }
-                            
-                            if (primitive.attributes && primitive.attributes.NORMAL !== undefined) {
-                                const normAccessor = this.json.accessors[primitive.attributes.NORMAL];
-                                const normals = this.getAccessorData(normAccessor);
-                                geometry.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
-                            }
-                            
-                            if (primitive.indices !== undefined) {
-                                const indexAccessor = this.json.accessors[primitive.indices];
-                                const indices = this.getAccessorData(indexAccessor);
-                                geometry.setIndex(new THREE.BufferAttribute(indices, 1));
-                            }
-                            
-                            const mesh = new THREE.Mesh(geometry, material);
-                            group.add(mesh);
-                        });
-                    }
-                    
-                    return group;
-                },
-                
-                getAccessorData: function(accessor) {
-                    const bufferView = this.json.bufferViews[accessor.bufferView];
-                    const buffer = this.json.buffers[bufferView.buffer];
-                    const arrayBuffer = buffer.uri;
-                    
-                    const componentTypes = {
-                        5121: Uint8Array,
-                        5123: Uint16Array,
-                        5125: Uint32Array,
-                        5126: Float32Array
-                    };
-                    
-                    const ArrayType = componentTypes[accessor.componentType];
-                    const elementSize = { SCALAR: 1, VEC2: 2, VEC3: 3, VEC4: 4, MAT4: 16 }[accessor.type];
-                    
-                    const array = new ArrayType(
-                        arrayBuffer.buffer || arrayBuffer,
-                        (bufferView.byteOffset || 0) + (accessor.byteOffset || 0),
-                        accessor.count * elementSize
-                    );
-                    
-                    return Array.from(array);
-                }
-            };
-            
-            return GLTFLoader;
-        })();
-        
-        // OrbitControls for Three.js r128
-        THREE.OrbitControls = function(object, domElement) {
-            this.object = object;
-            this.domElement = domElement || document;
-            
-            this.enabled = true;
-            this.target = new THREE.Vector3();
-            
-            this.minDistance = 0;
-            this.maxDistance = Infinity;
-            
-            this.enableDamping = false;
-            this.dampingFactor = 0.05;
-            
-            this.enableZoom = true;
-            this.zoomSpeed = 1.0;
-            
-            this.enableRotate = true;
-            this.rotateSpeed = 1.0;
-            
-            this.enablePan = true;
-            this.panSpeed = 1.0;
-            
-            this.autoRotate = false;
-            this.autoRotateSpeed = 2.0;
-            
-            const scope = this;
-            const STATE = { NONE: -1, ROTATE: 0, DOLLY: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_DOLLY_PAN: 4 };
-            let state = STATE.NONE;
-            
-            const spherical = new THREE.Spherical();
-            const sphericalDelta = new THREE.Spherical();
-            let scale = 1;
-            const panOffset = new THREE.Vector3();
-            
-            const rotateStart = new THREE.Vector2();
-            const rotateEnd = new THREE.Vector2();
-            const rotateDelta = new THREE.Vector2();
-            
-            const panStart = new THREE.Vector2();
-            const panEnd = new THREE.Vector2();
-            const panDelta = new THREE.Vector2();
-            
-            const dollyStart = new THREE.Vector2();
-            const dollyEnd = new THREE.Vector2();
-            const dollyDelta = new THREE.Vector2();
-            
-            this.update = function() {
-                const offset = new THREE.Vector3();
-                const quat = new THREE.Quaternion().setFromUnitVectors(object.up, new THREE.Vector3(0, 1, 0));
-                const quatInverse = quat.clone().invert();
-                
-                return function update() {
-                    const position = scope.object.position;
-                    offset.copy(position).sub(scope.target);
-                    offset.applyQuaternion(quat);
-                    
-                    spherical.setFromVector3(offset);
-                    
-                    if (scope.autoRotate && state === STATE.NONE) {
-                        spherical.theta -= 2 * Math.PI / 60 / 60 * scope.autoRotateSpeed;
-                    }
-                    
-                    spherical.theta += sphericalDelta.theta;
-                    spherical.phi += sphericalDelta.phi;
-                    
-                    spherical.phi = Math.max(0.01, Math.min(Math.PI - 0.01, spherical.phi));
-                    spherical.radius *= scale;
-                    spherical.radius = Math.max(scope.minDistance, Math.min(scope.maxDistance, spherical.radius));
-                    
-                    scope.target.add(panOffset);
-                    
-                    offset.setFromSpherical(spherical);
-                    offset.applyQuaternion(quatInverse);
-                    
-                    position.copy(scope.target).add(offset);
-                    scope.object.lookAt(scope.target);
-                    
-                    if (scope.enableDamping) {
-                        sphericalDelta.theta *= (1 - scope.dampingFactor);
-                        sphericalDelta.phi *= (1 - scope.dampingFactor);
-                        panOffset.multiplyScalar(1 - scope.dampingFactor);
-                    } else {
-                        sphericalDelta.set(0, 0, 0);
-                        panOffset.set(0, 0, 0);
-                    }
-                    
-                    scale = 1;
-                    
-                    return false;
-                };
-            }();
-            
-            function onMouseDown(event) {
-                if (!scope.enabled) return;
-                event.preventDefault();
-                
-                if (event.button === 0) {
-                    state = STATE.ROTATE;
-                    rotateStart.set(event.clientX, event.clientY);
-                } else if (event.button === 2) {
-                    state = STATE.PAN;
-                    panStart.set(event.clientX, event.clientY);
-                }
-                
-                document.addEventListener('mousemove', onMouseMove);
-                document.addEventListener('mouseup', onMouseUp);
-            }
-            
-            function onMouseMove(event) {
-                if (!scope.enabled) return;
-                event.preventDefault();
-                
-                if (state === STATE.ROTATE) {
-                    rotateEnd.set(event.clientX, event.clientY);
-                    rotateDelta.subVectors(rotateEnd, rotateStart).multiplyScalar(scope.rotateSpeed);
-                    
-                    sphericalDelta.theta -= 2 * Math.PI * rotateDelta.x / scope.domElement.clientHeight;
-                    sphericalDelta.phi -= 2 * Math.PI * rotateDelta.y / scope.domElement.clientHeight;
-                    
-                    rotateStart.copy(rotateEnd);
-                } else if (state === STATE.PAN) {
-                    panEnd.set(event.clientX, event.clientY);
-                    panDelta.subVectors(panEnd, panStart).multiplyScalar(scope.panSpeed);
-                    
-                    const offset = new THREE.Vector3();
-                    offset.copy(scope.object.position).sub(scope.target);
-                    let targetDistance = offset.length();
-                    targetDistance *= Math.tan((scope.object.fov / 2) * Math.PI / 180.0);
-                    
-                    const panLeft = new THREE.Vector3();
-                    const v = new THREE.Vector3();
-                    v.setFromMatrixColumn(scope.object.matrix, 0);
-                    panLeft.copy(v).multiplyScalar(-2 * panDelta.x * targetDistance / scope.domElement.clientHeight);
-                    
-                    const panUp = new THREE.Vector3();
-                    v.setFromMatrixColumn(scope.object.matrix, 1);
-                    panUp.copy(v).multiplyScalar(2 * panDelta.y * targetDistance / scope.domElement.clientHeight);
-                    
-                    panOffset.add(panLeft).add(panUp);
-                    panStart.copy(panEnd);
-                }
-            }
-            
-            function onMouseUp() {
-                if (!scope.enabled) return;
-                document.removeEventListener('mousemove', onMouseMove);
-                document.removeEventListener('mouseup', onMouseUp);
-                state = STATE.NONE;
-            }
-            
-            function onMouseWheel(event) {
-                if (!scope.enabled || !scope.enableZoom || state !== STATE.NONE) return;
-                event.preventDefault();
-                
-                if (event.deltaY < 0) {
-                    scale /= 0.95;
-                } else if (event.deltaY > 0) {
-                    scale *= 0.95;
-                }
-            }
-            
-            this.domElement.addEventListener('mousedown', onMouseDown);
-            this.domElement.addEventListener('wheel', onMouseWheel);
-            this.domElement.addEventListener('contextmenu', function(event) { event.preventDefault(); });
-        };
     </script>
 </body>
 </html>
