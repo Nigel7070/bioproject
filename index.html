@@ -3,858 +3,752 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Vertebral Column Anatomy (Enhanced Realism)</title>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    
-    <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>3D Vertebra Anatomy Explorer</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary-cyan: #00d9ff;
+            --secondary-teal: #00ffc8;
+            --dark-bg: #0a0e1a;
+            --card-bg: #151b2e;
+            --accent-purple: #8b5cf6;
+            --text-primary: #e8f1ff;
+            --text-secondary: #94a9c9;
+            --success-green: #10b981;
+            --error-red: #ef4444;
+        }
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
-        :root {
-            --primary-dark: #0a2540;
-            --primary-blue: #1a5490;
-            --accent-cyan: #00d4ff;
-            --bg-dark: #0d1b2a;
-            --bg-card: #1b2838;
-            --text-light: #e0e6ed;
-            --text-muted: #8b95a5;
-            --border-color: #2a3f5f;
-            --bone-color: #cccccc; 
-        }
-
+        
         body {
-            font-family: 'Source Sans 3', sans-serif;
-            background: linear-gradient(135deg, var(--bg-dark) 0%, #1a2332 100%);
-            color: var(--text-light);
-            overflow: hidden;
-            height: 100vh;
-        }
-
-        .container {
-            display: flex;
-            height: 100vh;
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            overflow-x: hidden;
             position: relative;
         }
-
-        /* 3D Canvas Section */
-        .canvas-section {
-            flex: 1;
-            position: relative;
-            background: radial-gradient(ellipse at center, rgba(26, 84, 144, 0.15) 0%, transparent 70%); 
-        }
-
-        #canvas-container {
-            width: 100%;
-            height: 100%;
-        }
-
-        /* Control Panel */
-        .control-panel {
-            width: 420px;
-            background: rgba(27, 40, 56, 0.95);
-            backdrop-filter: blur(20px);
-            border-left: 1px solid var(--border-color);
-            padding: 2.5rem;
-            overflow-y: auto;
-            animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .logo {
-            font-family: 'Outfit', sans-serif;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--accent-cyan);
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.5px;
-        }
-
-        .subtitle {
-            font-size: 0.875rem;
-            color: var(--text-muted);
-            margin-bottom: 2rem;
-            font-weight: 300;
-        }
-
-        .section-title {
-            font-family: 'Outfit', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin: 2rem 0 1rem 0;
-            color: var(--text-light);
-            letter-spacing: -0.3px;
-        }
-
-        .section-title:first-of-type {
-            margin-top: 0;
-        }
-
-        /* Buttons */
-        .btn-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .btn {
-            background: rgba(26, 84, 144, 0.2);
-            border: 1px solid var(--border-color);
-            color: var(--text-light);
-            padding: 0.875rem 1.25rem;
-            border-radius: 10px;
-            cursor: pointer;
-            font-family: 'Source Sans 3', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn:hover {
-            background: rgba(26, 84, 144, 0.4);
-            border-color: var(--accent-cyan);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.2);
-        }
-
-        .btn.active {
-            background: linear-gradient(135deg, var(--primary-blue), var(--accent-cyan));
-            border-color: var(--accent-cyan);
-            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
-        }
-
-        .btn-primary {
-            grid-column: 1 / -1;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--primary-blue));
-            border: none;
-            font-weight: 600;
-            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
-        }
-
-        /* Vertebrae List */
-        .vertebrae-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .vertebra-item {
-            background: rgba(26, 84, 144, 0.1);
-            border: 1px solid var(--border-color);
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .vertebra-item:hover {
-            background: rgba(26, 84, 144, 0.25);
-            border-color: var(--accent-cyan);
-            transform: translateX(5px);
-        }
-
-        .vertebra-item.selected {
-            background: rgba(0, 212, 255, 0.2);
-            border-color: var(--accent-cyan);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
-        }
-
-        .vertebra-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-
-        .vertebra-name {
-            font-weight: 500;
-            font-size: 0.95rem;
-        }
-
-        /* Info Panel */
-        .info-panel {
-            background: rgba(26, 84, 144, 0.15);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-top: 1.5rem;
-            animation: fadeIn 0.5s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .info-title {
-            font-family: 'Outfit', sans-serif;
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--accent-cyan);
-            margin-bottom: 0.75rem;
-        }
-
-        .info-text {
-            font-size: 0.9rem;
-            line-height: 1.6;
-            color: var(--text-muted);
-            margin-bottom: 1rem;
-        }
-
-        .info-label {
-            font-weight: 600;
-            color: var(--text-light);
-            font-size: 0.85rem;
-            margin-top: 1rem;
-            margin-bottom: 0.25rem;
-        }
-
-        /* Quiz Overlay */
-        .quiz-overlay {
+        
+        /* Animated grid background */
+        body::before {
+            content: '';
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(13, 27, 42, 0.98);
-            backdrop-filter: blur(10px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
+            background-image: 
+                linear-gradient(rgba(0, 217, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 217, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridScroll 20s linear infinite;
+            pointer-events: none;
+            z-index: 0;
         }
-
-        .quiz-overlay.active {
-            display: flex;
+        
+        @keyframes gridScroll {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
         }
-
-        .quiz-container {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
+        
+        /* Scanline effect */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                transparent 50%,
+                rgba(0, 217, 255, 0.02) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 1;
+            animation: scanline 8s linear infinite;
+        }
+        
+        @keyframes scanline {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100%); }
+        }
+        
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--secondary-teal), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+        
+        @keyframes titleGlow {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(0, 217, 255, 0.5)); }
+            50% { filter: drop-shadow(0 0 40px rgba(0, 217, 255, 0.8)); }
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .viewer-container {
+            position: relative;
+            background: linear-gradient(135deg, #151b2e, #1a2238);
             border-radius: 20px;
-            padding: 3rem;
-            max-width: 700px;
-            width: 90%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            box-shadow: 
+                0 0 60px rgba(0, 217, 255, 0.1),
+                inset 0 0 60px rgba(0, 217, 255, 0.03);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            overflow: hidden;
         }
-
-        .quiz-header {
+        
+        #canvas-container {
+            width: 100%;
+            height: 600px;
+            border-radius: 15px;
+            background: radial-gradient(circle at center, #0f1419, #0a0e1a);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .controls {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
         }
-
-        .quiz-title {
-            font-family: 'Outfit', sans-serif;
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: var(--accent-cyan);
-        }
-
-        .quiz-progress {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            background: rgba(26, 84, 144, 0.2);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-        }
-
-        .question-text {
-            font-size: 1.25rem;
-            font-weight: 500;
-            color: var(--text-light);
-            margin-bottom: 2rem;
-            line-height: 1.5;
-        }
-
-        .options {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .option {
-            background: rgba(26, 84, 144, 0.1);
-            border: 2px solid var(--border-color);
-            padding: 1.25rem 1.5rem;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            font-size: 1rem;
-        }
-
-        .option:hover {
-            background: rgba(26, 84, 144, 0.25);
-            border-color: var(--accent-cyan);
-            transform: translateX(8px);
-        }
-
-        .option.selected {
-            background: rgba(0, 212, 255, 0.2);
-            border-color: var(--accent-cyan);
-        }
-
-        .option.correct {
-            background: rgba(80, 200, 120, 0.2);
-            border-color: #50c878;
-        }
-
-        .option.incorrect {
-            background: rgba(231, 76, 60, 0.2);
-            border-color: #e74c3c;
-        }
-
-        .quiz-actions {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .quiz-btn {
-            flex: 1;
-            padding: 1rem;
-            border-radius: 12px;
-            border: none;
-            font-family: 'Source Sans 3', sans-serif;
+        
+        .btn {
+            font-family: 'Rajdhani', sans-serif;
+            padding: 12px 24px;
+            border: 2px solid var(--primary-cyan);
+            background: rgba(0, 217, 255, 0.1);
+            color: var(--primary-cyan);
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
         }
-
-        .quiz-btn-next {
-            background: linear-gradient(135deg, var(--accent-cyan), var(--primary-blue));
-            color: white;
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(0, 217, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
         }
-
-        .quiz-btn-next:hover {
+        
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn:hover {
+            background: rgba(0, 217, 255, 0.2);
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
         }
-
-        .quiz-btn-close {
-            background: rgba(26, 84, 144, 0.2);
-            border: 1px solid var(--border-color);
-            color: var(--text-light);
+        
+        .btn span {
+            position: relative;
+            z-index: 1;
         }
-
-        .quiz-btn-close:hover {
-            background: rgba(26, 84, 144, 0.4);
+        
+        .info-panel {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            box-shadow: 0 0 40px rgba(0, 217, 255, 0.05);
         }
-
-        .quiz-result {
-            text-align: center;
-            animation: fadeIn 0.5s;
+        
+        .info-panel h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            color: var(--primary-cyan);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
-
-        .quiz-score {
-            font-family: 'Outfit', sans-serif;
-            font-size: 4rem;
+        
+        .anatomy-list {
+            list-style: none;
+            margin-top: 20px;
+        }
+        
+        .anatomy-list li {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background: rgba(0, 217, 255, 0.05);
+            border-left: 3px solid var(--primary-cyan);
+            border-radius: 5px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .anatomy-list li:hover {
+            background: rgba(0, 217, 255, 0.1);
+            transform: translateX(10px);
+        }
+        
+        .anatomy-list strong {
+            color: var(--secondary-teal);
             font-weight: 700;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--primary-blue));
+        }
+        
+        .instructions {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(0, 217, 255, 0.1));
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+        
+        .instructions h3 {
+            color: var(--accent-purple);
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+        
+        .instructions p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        .quiz-section {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            box-shadow: 0 0 40px rgba(0, 217, 255, 0.05);
+        }
+        
+        .quiz-section h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: var(--secondary-teal);
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            text-align: center;
+            letter-spacing: 3px;
+        }
+        
+        .question {
+            margin-bottom: 35px;
+            padding: 25px;
+            background: rgba(0, 217, 255, 0.03);
+            border-radius: 15px;
+            border: 1px solid rgba(0, 217, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .question:hover {
+            border-color: rgba(0, 217, 255, 0.3);
+            box-shadow: 0 0 30px rgba(0, 217, 255, 0.1);
+        }
+        
+        .question h3 {
+            color: var(--primary-cyan);
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .option {
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, rgba(0, 217, 255, 0.2), transparent);
+            transition: width 0.3s ease;
+        }
+        
+        .option:hover::before {
+            width: 100%;
+        }
+        
+        .option:hover {
+            border-color: var(--primary-cyan);
+            transform: translateX(5px);
+        }
+        
+        .option.selected {
+            background: rgba(0, 217, 255, 0.2);
+            border-color: var(--primary-cyan);
+        }
+        
+        .option.correct {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: var(--success-green);
+            animation: correctPulse 0.6s ease;
+        }
+        
+        .option.incorrect {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: var(--error-red);
+            animation: shake 0.5s ease;
+        }
+        
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        .score-display {
+            text-align: center;
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(139, 92, 246, 0.1));
+            border-radius: 15px;
+            margin-top: 30px;
+            border: 2px solid var(--primary-cyan);
+        }
+        
+        .score-display h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: var(--secondary-teal);
+            margin-bottom: 10px;
+        }
+        
+        .score-number {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--secondary-teal));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin: 2rem 0;
+            background-clip: text;
         }
-
-        .quiz-message {
-            font-size: 1.25rem;
-            color: var(--text-light);
-            margin-bottom: 2rem;
+        
+        /* Label styles for 3D model */
+        .label {
+            position: absolute;
+            background: rgba(0, 217, 255, 0.9);
+            color: #0a0e1a;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            pointer-events: none;
+            white-space: nowrap;
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.8);
+            border: 2px solid var(--secondary-teal);
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            animation: labelFloat 2s ease-in-out infinite;
         }
-
-        /* Loading Animation */
+        
+        @keyframes labelFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .label::before {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid rgba(0, 217, 255, 0.9);
+        }
+        
         .loading {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            text-align: center;
-            z-index: 500;
-        }
-
-        .loading-text {
-            font-family: 'Outfit', sans-serif;
             font-size: 1.5rem;
-            color: var(--accent-cyan);
-            animation: pulse 2s infinite;
+            color: var(--primary-cyan);
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
         }
         
-        @keyframes pulse {
-            0%, 100% { opacity: 0.8; }
-            50% { opacity: 1; }
+        .spinner {
+            border: 4px solid rgba(0, 217, 255, 0.1);
+            border-top: 4px solid var(--primary-cyan);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
         }
-
-        /* Responsive */
-        @media (max-width: 1024px) {
-            .container {
-                flex-direction: column;
-            }
-            .canvas-section {
-                height: 50vh;
-            }
-            .control-panel {
-                width: 100%;
-                height: 50vh;
-                border-left: none;
-                border-top: 1px solid var(--border-color);
-            }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 50px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="canvas-section">
-            <div id="canvas-container"></div>
-            <div class="loading" id="loading">
-                <div class="loading-text">Loading 3D Vertebra Model... 0%</div>
-            </div>
-        </div>
-
-        <div class="control-panel">
-            <div class="logo">SPINAL ANATOMY</div>
-            <div class="subtitle">Interactive 3D Vertebral Column Explorer</div>
-
-            <div class="section-title">View Controls</div>
-            <div class="btn-group">
-                <button class="btn" id="btnExplode">Explode View</button>
-                <button class="btn" id="btnRotate">Auto Rotate</button>
-                <button class="btn" id="btnReset">Reset View</button>
-                <button class="btn" id="btnLabels" disabled title="Feature not implemented in this demo">Toggle Labels</button>
-            </div>
-
-            <button class="btn btn-primary" id="btnQuiz">Start Anatomy Quiz 🧠</button>
-
-            <div class="section-title">Vertebral Regions</div>
-            <div class="vertebrae-list" id="vertebraeList"></div>
-
-            <div class="info-panel" id="infoPanel" style="display: none;">
-                <div class="info-title" id="infoTitle">Select a vertebra</div>
-                <div class="info-text" id="infoDescription"></div>
-                <div class="info-label">Key Features:</div>
-                <div class="info-text" id="infoFeatures"></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="quiz-overlay" id="quizOverlay">
-        <div class="quiz-container">
-            <div class="quiz-header">
-                <div class="quiz-title">Vertebral Column Quiz</div>
-                <div class="quiz-progress" id="quizProgress">Question 1/5</div>
-            </div>
-            <div id="quizContent">
-                <div class="question-text" id="questionText"></div>
-                <div class="options" id="optionsContainer"></div>
-                <div class="quiz-actions">
-                    <button class="quiz-btn quiz-btn-next" id="btnNextQuestion">Next Question</button>
-                    <button class="quiz-btn quiz-btn-close" id="btnCloseQuiz">Close Quiz</button>
+        <header>
+            <h1>Vertebra Anatomy Explorer</h1>
+            <p class="subtitle">Interactive 3D Medical Visualization</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="viewer-container">
+                <div id="canvas-container">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <div>Loading 3D Model...</div>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="btn" onclick="toggleLabels()"><span>🏷️ Toggle Labels</span></button>
+                    <button class="btn" onclick="resetCamera()"><span>🔄 Reset View</span></button>
+                    <button class="btn" onclick="toggleRotation()"><span id="rotateBtn">⏸️ Pause Rotation</span></button>
                 </div>
             </div>
-            <div id="quizResult" style="display: none;" class="quiz-result">
-                <div class="quiz-score" id="finalScore"></div>
-                <div class="quiz-message" id="resultMessage"></div>
-                <button class="quiz-btn quiz-btn-primary" id="btnRetakeQuiz" style="background: linear-gradient(135deg, var(--accent-cyan), var(--primary-blue)); color: white;">Retake Quiz</button>
+            
+            <div class="info-panel">
+                <h2>Vertebral Anatomy</h2>
+                <p style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 20px;">
+                    The vertebra is a fundamental building block of the spinal column, providing structural support and protecting the spinal cord.
+                </p>
+                
+                <ul class="anatomy-list">
+                    <li><strong>Vertebral Body:</strong> Main weight-bearing structure</li>
+                    <li><strong>Vertebral Foramen:</strong> Passage for spinal cord</li>
+                    <li><strong>Spinous Process:</strong> Posterior projection for muscle attachment</li>
+                    <li><strong>Transverse Processes:</strong> Lateral projections</li>
+                    <li><strong>Superior Articular Process:</strong> Joint surfaces</li>
+                    <li><strong>Pedicles:</strong> Connect body to posterior arch</li>
+                    <li><strong>Laminae:</strong> Form posterior wall of vertebral foramen</li>
+                </ul>
+                
+                <div class="instructions">
+                    <h3>🖱️ Controls</h3>
+                    <p><strong>Rotate:</strong> Left click + drag<br>
+                    <strong>Zoom:</strong> Mouse wheel<br>
+                    <strong>Pan:</strong> Right click + drag<br>
+                    <strong>Mobile:</strong> One finger rotate, two fingers zoom</p>
+                </div>
             </div>
         </div>
-    </div>
-
-    <script>
-        // Data Definitions
-        const vertebraeData = [
-            { name: 'C1 (Atlas)', region: 'Cervical', color: '#4a90e2', description: 'First cervical vertebra that supports the skull and allows nodding motion', features: 'Ring-shaped, no vertebral body, articulates with occipital bone' },
-            { name: 'C2 (Axis)', region: 'Cervical', color: '#4a90e2', description: 'Second cervical vertebra with odontoid process (dens)', features: 'Dens allows rotational movement of the head' },
-            { name: 'C3', region: 'Cervical', color: '#4a90e2', description: 'Third cervical vertebra', features: 'Small body, bifid spinous process, transverse foramen' },
-            { name: 'C4', region: 'Cervical', color: '#4a90e2', description: 'Fourth cervical vertebra', features: 'Similar to C3, supports neck muscles' },
-            { name: 'C5', region: 'Cervical', color: '#4a90e2', description: 'Fifth cervical vertebra', features: 'Common site for nerve root compression' },
-            { name: 'C6', region: 'Cervical', color: '#4a90e2', description: 'Sixth cervical vertebra', features: 'Carotid tubercle landmark on transverse process' },
-            { name: 'C7 (Vertebra Prominens)', region: 'Cervical', color: '#4a90e2', description: 'Seventh cervical vertebra, transition to thoracic', features: 'Long, non-bifid spinous process, easily palpable' },
-            { name: 'T1', region: 'Thoracic', color: '#50c878', description: 'First thoracic vertebra', features: 'Articulates with 1st rib, costal facets present' },
-            { name: 'T2', region: 'Thoracic', color: '#50c878', description: 'Second thoracic vertebra', features: 'Heart-shaped body, costal facets' },
-            { name: 'T3', region: 'Thoracic', color: '#50c878', description: 'Third thoracic vertebra', features: 'Articulates with ribs' },
-            { name: 'T4', region: 'Thoracic', color: '#50c878', description: 'Fourth thoracic vertebra', features: 'Sternal angle level landmark' },
-            { name: 'T5', region: 'Thoracic', color: '#50c878', description: 'Fifth thoracic vertebra', features: 'Mid-thoracic region' },
-            { name: 'T6', region: 'Thoracic', color: '#50c878', description: 'Sixth thoracic vertebra', features: 'Mid-thoracic region' },
-            { name: 'T7', region: 'Thoracic', color: '#50c878', description: 'Seventh thoracic vertebra', features: 'Inferior angle of scapula level' },
-            { name: 'T8', region: 'Thoracic', color: '#50c878', description: 'Eighth thoracic vertebra', features: 'Mid to lower thoracic' },
-            { name: 'T9', region: 'Thoracic', color: '#50c878', description: 'Ninth thoracic vertebra', features: 'Lower thoracic region' },
-            { name: 'T10', region: 'Thoracic', color: '#50c878', description: 'Tenth thoracic vertebra', features: 'Articulates with floating ribs' },
-            { name: 'T11', region: 'Thoracic', color: '#50c878', description: 'Eleventh thoracic vertebra', features: 'Single costal facet' },
-            { name: 'T12', region: 'Thoracic', color: '#50c878', description: 'Twelfth thoracic vertebra, transition to lumbar', features: 'Transitional features, ribs attach' },
-            { name: 'L1', region: 'Lumbar', color: '#ff8c42', description: 'First lumbar vertebra', features: 'Large kidney-shaped body, no costal facets' },
-            { name: 'L2', region: 'Lumbar', color: '#ff8c42', description: 'Second lumbar vertebra', features: 'Supports significant weight' },
-            { name: 'L3', region: 'Lumbar', color: '#ff8c42', description: 'Third lumbar vertebra', features: 'Umbilicus level landmark' },
-            { name: 'L4', region: 'Lumbar', color: '#ff8c42', description: 'Fourth lumbar vertebra', features: 'Iliac crest level, common herniation site' },
-            { name: 'L5', region: 'Lumbar', color: '#ff8c42', description: 'Fifth lumbar vertebra, largest movable', features: 'Wedge-shaped, articulates with sacrum, supports most weight' },
-            { name: 'Sacrum (S1-S5)', region: 'Sacral', color: '#9b59b6', description: 'Five fused vertebrae forming triangular bone', features: 'Connects spine to pelvis, sacral promontory, sacral canal' },
-            { name: 'Coccyx', region: 'Coccygeal', color: '#e74c3c', description: 'Tailbone, 3-5 fused vertebrae', features: 'Attachment for pelvic floor muscles, vestigial tail' }
-        ];
-
-        const quizQuestions = [
-            {
-                question: 'How many cervical vertebrae are in the human vertebral column?',
-                options: ['5', '7', '12', '9'],
-                correct: 1
-            },
-            {
-                question: 'Which vertebra is also known as the "Axis"?',
-                options: ['C1', 'C2', 'C7', 'T1'],
-                correct: 1
-            },
-            {
-                question: 'What is the primary function of intervertebral discs?',
-                options: ['Produce blood cells', 'Absorb shock and allow flexibility', 'Store calcium', 'Generate nerve signals'],
-                correct: 1
-            },
-            {
-                question: 'Which region of the spine has the most vertebrae?',
-                options: ['Cervical', 'Thoracic', 'Lumbar', 'Sacral'],
-                correct: 1
-            },
-            {
-                question: 'What is the common name for vertebra C7?',
-                options: ['Atlas', 'Axis', 'Vertebra Prominens', 'Sacral Base'],
-                correct: 2
-            }
-        ];
-
-        // Three.js Setup
-        let scene, camera, renderer, controls;
-        let vertebrae = [];
-        let isExploded = false;
-        let isRotating = false;
-        let selectedVertebra = null;
-        let vertebraModelPlaceholder = null; 
-
-        // --- 1. MODEL LOADING LOGIC (Using the correct 'models/vertebra.glb' path) ---
-        function loadBaseModel(callback) {
-            const loader = new THREE.GLTFLoader();
-            document.getElementById('loading').style.display = 'block'; 
-
-            // PATH: Assumes the file is in a LOWERCASES 'models' folder and named 'vertebra.glb'
-            loader.load('models/vertebra.glb', (gltf) => {
-                vertebraModelPlaceholder = gltf.scene; 
-                document.getElementById('loading').style.display = 'none';
-                console.log('3D model loaded successfully!');
-                callback(); 
-            }, 
-            // Progress callback
-            (xhr) => {
-                const percent = Math.round(xhr.loaded / xhr.total * 100);
-                document.getElementById('loading').querySelector('.loading-text').textContent = `Loading 3D Vertebra Model... ${percent}%`;
-            },
-            // Error callback
-            (error) => {
-                console.error('Error loading 3D model. Falling back to simulated geometry.', error);
-                document.getElementById('loading').style.display = 'none';
-                callback(); 
-            });
-        }
         
-        // --- 2. FALLBACK/SIMULATED GEOMETRY (If GLB fails) ---
-        function createVertebraGeometry(region) {
-            let radius = 1.0, tube = 0.3, radialSegments = 16, tubularSegments = 40;
-
-            if (region === 'Cervical') {
-                return new THREE.TorusKnotGeometry(radius * 0.4, tube * 0.3, tubularSegments, radialSegments);
-            } else if (region === 'Thoracic') {
-                return new THREE.TorusKnotGeometry(radius * 0.5, tube * 0.3, tubularSegments, radialSegments);
-            } else if (region === 'Lumbar') {
-                return new THREE.TorusKnotGeometry(radius * 0.6, tube * 0.3, tubularSegments, radialSegments);
-            } else if (region === 'Sacral') {
-                return new THREE.ConeGeometry(radius * 0.8, 2.0, 12, 1);
-            } else { 
-                return new THREE.SphereGeometry(0.5, 16, 16);
-            }
-        }
-
-        // --- 3. CORE INITIALIZATION ---
-        function init() {
-            // Scene & Renderer Setup
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x0a141f); 
+        <div class="quiz-section">
+            <h2>📚 Test Your Knowledge</h2>
             
-            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(12, 0, 30); 
-
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setPixelRatio(window.devicePixelRatio);
-            renderer.outputEncoding = THREE.sRGBEncoding; 
-            renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = 1.0;
-            renderer.shadowMap.enabled = true; 
-
+            <div class="question" data-answer="0">
+                <h3>1. What is the primary weight-bearing structure of a vertebra?</h3>
+                <div class="options">
+                    <div class="option" onclick="selectAnswer(this, 0, 0)">A) Vertebral Body</div>
+                    <div class="option" onclick="selectAnswer(this, 0, 1)">B) Spinous Process</div>
+                    <div class="option" onclick="selectAnswer(this, 0, 2)">C) Transverse Process</div>
+                    <div class="option" onclick="selectAnswer(this, 0, 3)">D) Vertebral Foramen</div>
+                </div>
+            </div>
+            
+            <div class="question" data-answer="2">
+                <h3>2. Which structure protects the spinal cord?</h3>
+                <div class="options">
+                    <div class="option" onclick="selectAnswer(this, 1, 0)">A) Spinous Process</div>
+                    <div class="option" onclick="selectAnswer(this, 1, 1)">B) Pedicles</div>
+                    <div class="option" onclick="selectAnswer(this, 1, 2)">C) Vertebral Foramen</div>
+                    <div class="option" onclick="selectAnswer(this, 1, 3)">D) Laminae</div>
+                </div>
+            </div>
+            
+            <div class="question" data-answer="1">
+                <h3>3. What is the primary function of the spinous and transverse processes?</h3>
+                <div class="options">
+                    <div class="option" onclick="selectAnswer(this, 2, 0)">A) Protection of nerves</div>
+                    <div class="option" onclick="selectAnswer(this, 2, 1)">B) Muscle and ligament attachment</div>
+                    <div class="option" onclick="selectAnswer(this, 2, 2)">C) Blood vessel passage</div>
+                    <div class="option" onclick="selectAnswer(this, 2, 3)">D) Weight distribution</div>
+                </div>
+            </div>
+            
+            <div class="question" data-answer="2">
+                <h3>4. How many vertebrae are in the adult human spine?</h3>
+                <div class="options">
+                    <div class="option" onclick="selectAnswer(this, 3, 0)">A) 24 vertebrae</div>
+                    <div class="option" onclick="selectAnswer(this, 3, 1)">B) 30 vertebrae</div>
+                    <div class="option" onclick="selectAnswer(this, 3, 2)">C) 33 vertebrae</div>
+                    <div class="option" onclick="selectAnswer(this, 3, 3)">D) 40 vertebrae</div>
+                </div>
+            </div>
+            
+            <div class="question" data-answer="0">
+                <h3>5. Where are intervertebral discs located?</h3>
+                <div class="options">
+                    <div class="option" onclick="selectAnswer(this, 4, 0)">A) Between vertebral bodies</div>
+                    <div class="option" onclick="selectAnswer(this, 4, 1)">B) Inside the vertebral foramen</div>
+                    <div class="option" onclick="selectAnswer(this, 4, 2)">C) On the spinous processes</div>
+                    <div class="option" onclick="selectAnswer(this, 4, 3)">D) Between the transverse processes</div>
+                </div>
+            </div>
+            
+            <div class="score-display" id="scoreDisplay" style="display: none;">
+                <h3>Your Score</h3>
+                <div class="score-number"><span id="scoreValue">0</span>/5</div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Interactive 3D Vertebra Anatomy Explorer | Built with Three.js</p>
+        </footer>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Three.js setup
+        let scene, camera, renderer, controls, vertebraModel;
+        let labelsVisible = true;
+        let autoRotate = true;
+        const labels = [];
+        const userAnswers = new Array(5).fill(null);
+        let score = 0;
+        
+        // Initialize Three.js scene
+        function init() {
             const container = document.getElementById('canvas-container');
+            
+            // Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a0e1a);
+            scene.fog = new THREE.Fog(0x0a0e1a, 10, 50);
+            
+            // Camera
+            camera = new THREE.PerspectiveCamera(
+                45,
+                container.clientWidth / container.clientHeight,
+                0.1,
+                1000
+            );
+            camera.position.set(5, 3, 5);
+            
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            container.innerHTML = '';
             container.appendChild(renderer.domElement);
             
-            // Lights (for PBR realism)
+            // Lights
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
             scene.add(ambientLight);
-
-            const keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
-            keyLight.position.set(15, 20, 15);
-            keyLight.castShadow = true;
-            keyLight.shadow.mapSize.width = 1024;
-            keyLight.shadow.mapSize.height = 1024;
-            scene.add(keyLight);
             
-            // Ground Plane 
-            const ground = new THREE.Mesh(
-                new THREE.PlaneGeometry(100, 100),
-                new THREE.MeshStandardMaterial({ color: 0x0a141f, roughness: 1.0, metalness: 0.0 })
-            );
-            ground.rotation.x = -Math.PI / 2;
-            ground.position.y = -27; 
-            ground.receiveShadow = true;
-            scene.add(ground);
-
-            // Start the model loading process
-            loadBaseModel(() => {
-                createVertebrae();
-                setupInteractions();
-                animate();
-            });
-        }
-        
-        // --- 4. CORE VERTEBRA CREATION (SCALE AND ROTATION ADJUSTED HERE) ---
-        function createVertebrae() {
-            const hasModel = vertebraModelPlaceholder !== null;
-            const spacing = 1.8; 
-            const totalHeight = vertebraeData.length * spacing;
-
-            const centralGroup = new THREE.Group();
-            scene.add(centralGroup);
-
-            vertebraeData.forEach((data, index) => {
-                let vertebraMeshGroup;
-                
-                const boneMaterial = new THREE.MeshStandardMaterial({
-                    color: new THREE.Color(0xcccccc),
-                    roughness: 0.8, 
-                    metalness: 0.1, 
-                    emissive: 0x000000,
-                    transparent: true,
-                    opacity: 0.95
-                });
-                
-                boneMaterial.color.multiplyScalar(new THREE.Color(data.color).getHex() / 0xffffff);
-
-                if (hasModel) {
-                    // Use the loaded GLB model
-                    vertebraMeshGroup = vertebraModelPlaceholder.clone();
+            const directionalLight1 = new THREE.DirectionalLight(0x00d9ff, 0.8);
+            directionalLight1.position.set(5, 5, 5);
+            scene.add(directionalLight1);
+            
+            const directionalLight2 = new THREE.DirectionalLight(0x00ffc8, 0.5);
+            directionalLight2.position.set(-5, 3, -5);
+            scene.add(directionalLight2);
+            
+            const pointLight = new THREE.PointLight(0x8b5cf6, 0.6, 100);
+            pointLight.position.set(0, 5, 0);
+            scene.add(pointLight);
+            
+            // OrbitControls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.minDistance = 2;
+            controls.maxDistance = 15;
+            controls.autoRotate = true;
+            controls.autoRotateSpeed = 1.5;
+            
+            // Load GLB model
+            const loader = new THREE.GLTFLoader();
+            loader.load(
+                '/mnt/user-data/uploads/vertebra.glb',
+                function (gltf) {
+                    vertebraModel = gltf.scene;
                     
-                    vertebraMeshGroup.traverse((child) => {
+                    // Center and scale model
+                    const box = new THREE.Box3().setFromObject(vertebraModel);
+                    const center = box.getCenter(new THREE.Vector3());
+                    const size = box.getSize(new THREE.Vector3());
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    const scale = 3 / maxDim;
+                    
+                    vertebraModel.scale.multiplyScalar(scale);
+                    vertebraModel.position.sub(center.multiplyScalar(scale));
+                    
+                    // Apply material
+                    vertebraModel.traverse((child) => {
                         if (child.isMesh) {
-                            child.material = boneMaterial;
+                            child.material = new THREE.MeshPhongMaterial({
+                                color: 0xe8f1ff,
+                                shininess: 30,
+                                specular: 0x00d9ff,
+                                emissive: 0x00d9ff,
+                                emissiveIntensity: 0.1
+                            });
                             child.castShadow = true;
                             child.receiveShadow = true;
                         }
                     });
                     
-                    // ⚠️ AGGRESSIVE SCALE ADJUSTMENT ⚠️
-                    // Scale significantly down to compensate for the large model size
-                    vertebraMeshGroup.scale.set(0.15, 0.15, 0.15); 
-                    
-                    // ⚠️ 90-DEGREE ROTATION FIX ⚠️
-                    // Flips the model 90 degrees forward to make it stand up vertically
-                    vertebraMeshGroup.rotation.x = -Math.PI / 2; 
-                    
-                    // Adds a slight rotation for a better 3D starting view
-                    vertebraMeshGroup.rotation.y = -Math.PI / 4; 
-
-                } else {
-                    // Fallback
-                    const geometry = createVertebraGeometry(data.region); 
-                    vertebraMeshGroup = new THREE.Group();
-                    const mesh = new THREE.Mesh(geometry, boneMaterial);
-                    mesh.castShadow = true;
-                    mesh.receiveShadow = true;
-                    vertebraMeshGroup.add(mesh);
+                    scene.add(vertebraModel);
+                    createLabels();
+                },
+                function (xhr) {
+                    console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                },
+                function (error) {
+                    console.error('Error loading model:', error);
+                    document.querySelector('.loading').innerHTML = '<div style="color: #ef4444;">Error loading model</div>';
                 }
-                
-                const group = new THREE.Group();
-                group.add(vertebraMeshGroup);
-
-                // Position vertebrae vertically
-                group.position.y = (totalHeight / 2) - (index * spacing);
-                centralGroup.add(group);
-
-                // Find the direct mesh child for selection/highlighting
-                let actualMesh = null;
-                vertebraMeshGroup.traverse((child) => {
-                    if (child.isMesh) {
-                        actualMesh = child;
-                    }
-                });
-
-                vertebrae.push({
-                    mesh: actualMesh || vertebraMeshGroup, 
-                    group,
-                    data,
-                    originalY: group.position.y,
-                    originalMaterial: boneMaterial.clone() 
-                });
-            });
-
-            // Populate vertebrae list
-            const list = document.getElementById('vertebraeList');
-            vertebraeData.forEach((data, index) => {
-                const item = document.createElement('div');
-                item.className = 'vertebra-item';
-                item.innerHTML = `
-                    <div class="vertebra-color" style="background: ${data.color}"></div>
-                    <div class="vertebra-name">${data.name}</div>
-                `;
-                item.addEventListener('click', () => selectVertebra(vertebrae[index]));
-                list.appendChild(item);
-            });
-        }
-        
-        // --- 5. INTERACTION & ANIMATION (Standard Code) ---
-        
-        function setupInteractions() {
-            controls = new THREE.OrbitControls(camera, renderer.domElement);
-            controls.enableDamping = true; 
-            controls.dampingFactor = 0.05;
-            controls.minDistance = 15;
-            controls.maxDistance = 50;
-
-            renderer.domElement.addEventListener('click', (e) => {
-                const mouse = new THREE.Vector2();
-                const rect = renderer.domElement.getBoundingClientRect();
-                mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-                mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-
-                const raycaster = new THREE.Raycaster();
-                raycaster.setFromCamera(mouse, camera);
-
-                const meshes = vertebrae.map(v => v.mesh).filter(m => m !== null);
-                const intersects = raycaster.intersectObjects(meshes, true);
-
-                if (intersects.length > 0) {
-                    const clickedMesh = intersects[0].object;
-                    let foundVertebra = vertebrae.find(v => v.mesh === clickedMesh);
-
-                    if (!foundVertebra) {
-                        foundVertebra = vertebrae.find(v => {
-                            let current = clickedMesh;
-                            while (current) {
-                                if (current === v.group) return true;
-                                current = current.parent;
-                            }
-                            return false;
-                        });
-                    }
-                    selectVertebra(foundVertebra);
-                } else {
-                    selectVertebra(null); 
-                }
-            });
+            );
             
-            // Button handlers
-            document.getElementById('btnExplode').addEventListener('click', toggleExplode);
-            document.getElementById('btnRotate').addEventListener('click', toggleRotate);
-            document.getElementById('btnReset').addEventListener('click', resetView);
-            
+            // Handle window resize
             window.addEventListener('resize', onWindowResize, false);
+            
+            // Animation loop
+            animate();
         }
-
-        function selectVertebra(vertebra) {
-            if (selectedVertebra) {
-                const material = selectedVertebra.mesh.material;
-                material.emissive.setHex(0x000000);
-                material.emissiveIntensity = 0.0;
-            }
-            const items = document.querySelectorAll('.vertebra-item');
-            items.forEach(item => item.classList.remove('selected'));
-            document.getElementById('infoPanel').style.display = 'none';
-
-            if (vertebra) {
-                selectedVertebra = vertebra;
-                const material = vertebra.mesh.material;
-                material.emissive.setHex(0x00d4ff);
-                material.emissiveIntensity = 0.5;
-
-                const index = vertebrae.indexOf(vertebra);
-                items[index].classList.add('selected');
-
-                document.getElementById('infoPanel').style.display = 'block';
-                document.getElementById('infoTitle').textContent = vertebra.data.name;
-                document.getElementById('infoDescription').textContent = vertebra.data.description;
-                document.getElementById('infoFeatures').textContent = vertebra.data.features;
-
-                controls.target.copy(vertebra.group.position);
-            } else {
-                selectedVertebra = null;
-                controls.target.set(0, 0, 0);
-            }
-        }
-
-        function toggleExplode() {
-            isExploded = !isExploded;
-            const btn = document.getElementById('btnExplode');
-            btn.classList.toggle('active');
-
-            vertebrae.forEach((v, index) => {
-                const targetY = isExploded ? v.originalY + (index - vertebrae.length / 2) * 4 : v.originalY;
-                animatePosition(v.group, targetY);
+        
+        function createLabels() {
+            // Define label positions (you may need to adjust these based on your model)
+            const labelData = [
+                { name: 'Vertebral Body', position: new THREE.Vector3(0, -0.5, 0.8) },
+                { name: 'Spinous Process', position: new THREE.Vector3(0, 0, -1.2) },
+                { name: 'Transverse Process', position: new THREE.Vector3(1.2, 0.2, 0) },
+                { name: 'Vertebral Foramen', position: new THREE.Vector3(0, 0, 0.2) },
+                { name: 'Superior Articular', position: new THREE.Vector3(0.6, 1, -0.3) },
+                { name: 'Pedicles', position: new THREE.Vector3(0.8, 0, 0.5) },
+                { name: 'Laminae', position: new THREE.Vector3(0, 0.3, -0.7) }
+            ];
+            
+            labelData.forEach(data => {
+                const labelDiv = document.createElement('div');
+                labelDiv.className = 'label';
+                labelDiv.textContent = data.name;
+                labelDiv.style.display = labelsVisible ? 'block' : 'none';
+                document.getElementById('canvas-container').appendChild(labelDiv);
+                
+                labels.push({
+                    div: labelDiv,
+                    position: data.position
+                });
             });
         }
         
-        function toggleRotate() {
-            isRotating = !isRotating;
-            document.getElementById('btnRotate').classList.toggle('active');
-            controls.autoRotate = isRotating;
+        function updateLabels() {
+            labels.forEach(label => {
+                const vector = label.position.clone();
+                vector.project(camera);
+                
+                const x = (vector.x * 0.5 + 0.5) * renderer.domElement.clientWidth;
+                const y = (-(vector.y) * 0.5 + 0.5) * renderer.domElement.clientHeight;
+                
+                label.div.style.left = x + 'px';
+                label.div.style.top = y + 'px';
+            });
         }
-
-        function resetView() {
-            camera.position.set(12, 0, 30);
+        
+        function toggleLabels() {
+            labelsVisible = !labelsVisible;
+            labels.forEach(label => {
+                label.div.style.display = labelsVisible ? 'block' : 'none';
+            });
+        }
+        
+        function resetCamera() {
+            camera.position.set(5, 3, 5);
             controls.target.set(0, 0, 0);
             controls.update();
-            
-            const centralGroup = scene.children.find(c => c instanceof THREE.Group && c.children.length > 0 && c.children[0].position.y > 0);
-            if(centralGroup) {
-                centralGroup.rotation.set(0, 0, 0);
-            }
-            
-            vertebrae.forEach(v => {
-                v.group.position.y = v.originalY; 
-            });
-            isExploded = false;
-            isRotating = false;
-            document.getElementById('btnExplode').classList.remove('active');
-            document.getElementById('btnRotate').classList.remove('active');
-            selectVertebra(null);
+        }
+        
+        function toggleRotation() {
+            autoRotate = !autoRotate;
+            controls.autoRotate = autoRotate;
+            document.getElementById('rotateBtn').textContent = autoRotate ? '⏸️ Pause Rotation' : '▶️ Resume Rotation';
         }
         
         function onWindowResize() {
@@ -863,149 +757,390 @@
             camera.updateProjectionMatrix();
             renderer.setSize(container.clientWidth, container.clientHeight);
         }
-
-        function animatePosition(object, targetY) {
-            const duration = 1000;
-            const startY = object.position.y;
-            const startTime = Date.now();
-
-            function update() {
-                const elapsed = Date.now() - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const eased = easeInOutCubic(progress);
-
-                object.position.y = startY + (targetY - startY) * eased;
-
-                if (progress < 1) {
-                    requestAnimationFrame(update);
-                }
-            }
-            update();
-        }
-
-        function easeInOutCubic(t) {
-            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-        }
-
+        
         function animate() {
             requestAnimationFrame(animate);
-            controls.update(); 
+            controls.update();
+            updateLabels();
             renderer.render(scene, camera);
         }
-
-        // --- QUIZ FUNCTIONALITY ---
-        let currentQuestion = 0;
-        let score = 0;
-        let selectedAnswer = null;
-
-        document.getElementById('btnQuiz').addEventListener('click', startQuiz);
-        document.getElementById('btnCloseQuiz').addEventListener('click', closeQuiz);
-        document.getElementById('btnRetakeQuiz').addEventListener('click', startQuiz);
-
-
-        function startQuiz() {
-            currentQuestion = 0;
-            score = 0;
-            selectedAnswer = null;
-            document.getElementById('quizOverlay').classList.add('active');
-            document.getElementById('quizContent').style.display = 'block';
-            document.getElementById('quizResult').style.display = 'none';
-            showQuestion();
-        }
-
-        function showQuestion() {
-            const question = quizQuestions[currentQuestion];
-            document.getElementById('questionText').textContent = question.question;
-            document.getElementById('quizProgress').textContent = `Question ${currentQuestion + 1}/${quizQuestions.length}`;
-
-            const optionsContainer = document.getElementById('optionsContainer');
-            optionsContainer.innerHTML = '';
-            selectedAnswer = null;
-            document.getElementById('btnNextQuestion').textContent = 'Submit Answer';
-            document.getElementById('btnNextQuestion').removeEventListener('click', nextQuestion);
-            document.getElementById('btnNextQuestion').removeEventListener('click', checkAnswer);
-            document.getElementById('btnNextQuestion').addEventListener('click', checkAnswer, { once: true });
-
-
-            question.options.forEach((option, index) => {
-                const optionDiv = document.createElement('div');
-                optionDiv.className = 'option';
-                optionDiv.textContent = option;
-                optionDiv.dataset.index = index;
-                optionDiv.addEventListener('click', () => selectOption(optionDiv));
-                optionsContainer.appendChild(optionDiv);
-            });
-        }
-
-        function selectOption(selectedDiv) {
-            if (selectedAnswer !== null) return; 
-
-            const options = document.querySelectorAll('.option');
-            options.forEach(opt => opt.classList.remove('selected'));
-
-            selectedDiv.classList.add('selected');
-            selectedAnswer = parseInt(selectedDiv.dataset.index);
-        }
         
-        function checkAnswer() {
-            const question = quizQuestions[currentQuestion];
-            const options = document.querySelectorAll('.option');
-
-            options.forEach((opt, index) => {
-                opt.removeEventListener('click', () => selectOption(opt));
-                if (index === question.correct) {
-                    opt.classList.add('correct');
-                } else if (index === selectedAnswer) {
-                    opt.classList.add('incorrect');
-                }
+        // Quiz functionality
+        function selectAnswer(element, questionIndex, answerIndex) {
+            const question = element.closest('.question');
+            const options = question.querySelectorAll('.option');
+            const correctAnswer = parseInt(question.dataset.answer);
+            
+            // Clear previous selections
+            options.forEach(opt => {
+                opt.classList.remove('selected', 'correct', 'incorrect');
             });
-
-            if (selectedAnswer === question.correct) {
-                score++;
+            
+            // Mark selected answer
+            element.classList.add('selected');
+            userAnswers[questionIndex] = answerIndex;
+            
+            // Show correct/incorrect
+            if (answerIndex === correctAnswer) {
+                element.classList.add('correct');
+                if (userAnswers[questionIndex] !== correctAnswer) {
+                    score++;
+                }
+            } else {
+                element.classList.add('incorrect');
+                options[correctAnswer].classList.add('correct');
             }
             
-            document.getElementById('btnNextQuestion').textContent = (currentQuestion === quizQuestions.length - 1) ? 'View Results' : 'Next Question';
-            document.getElementById('btnNextQuestion').removeEventListener('click', checkAnswer);
-            document.getElementById('btnNextQuestion').addEventListener('click', nextQuestion);
+            // Update score display
+            updateScore();
         }
-
-        function nextQuestion() {
-            currentQuestion++;
-            if (currentQuestion < quizQuestions.length) {
-                showQuestion();
-            } else {
-                showResults();
+        
+        function updateScore() {
+            const answeredQuestions = userAnswers.filter(ans => ans !== null).length;
+            
+            if (answeredQuestions === 5) {
+                // Calculate final score
+                let finalScore = 0;
+                const questions = document.querySelectorAll('.question');
+                questions.forEach((question, index) => {
+                    const correctAnswer = parseInt(question.dataset.answer);
+                    if (userAnswers[index] === correctAnswer) {
+                        finalScore++;
+                    }
+                });
+                
+                document.getElementById('scoreValue').textContent = finalScore;
+                document.getElementById('scoreDisplay').style.display = 'block';
+                document.getElementById('scoreDisplay').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
         }
-
-        function showResults() {
-            document.getElementById('quizContent').style.display = 'none';
-            const resultPanel = document.getElementById('quizResult');
-            resultPanel.style.display = 'block';
-
-            document.getElementById('finalScore').textContent = `${score}/${quizQuestions.length}`;
-
-            let message = '';
-            const percentage = (score / quizQuestions.length) * 100;
-
-            if (percentage === 100) {
-                message = 'Perfect score! You are a spinal anatomy master! 🌟';
-            } else if (percentage >= 80) {
-                message = 'Excellent job! You have a strong knowledge of the spine. 💪';
-            } else if (percentage >= 50) {
-                message = 'Good effort! Keep studying those regions and special vertebrae. 🤔';
-            } else {
-                message = 'Time to review! Explore the 3D model to improve your score. 📚';
+        
+        // Start the application
+        init();
+    </script>
+    
+    <script>
+        // GLTFLoader for Three.js r128
+        THREE.GLTFLoader = (function() {
+            function GLTFLoader(manager) {
+                this.manager = (manager !== undefined) ? manager : THREE.DefaultLoadingManager;
             }
-            document.getElementById('resultMessage').textContent = message;
-        }
-
-        function closeQuiz() {
-            document.getElementById('quizOverlay').classList.remove('active');
-        }
-
-        // Initialize the Three.js scene
-        window.onload = init;
+            
+            GLTFLoader.prototype = {
+                load: function(url, onLoad, onProgress, onError) {
+                    const scope = this;
+                    const loader = new THREE.FileLoader(scope.manager);
+                    loader.setPath(this.path);
+                    loader.setResponseType('arraybuffer');
+                    
+                    loader.load(url, function(data) {
+                        try {
+                            scope.parse(data, onLoad);
+                        } catch (e) {
+                            if (onError) {
+                                onError(e);
+                            } else {
+                                console.error(e);
+                            }
+                        }
+                    }, onProgress, onError);
+                },
+                
+                setPath: function(value) {
+                    this.path = value;
+                    return this;
+                },
+                
+                parse: function(data, onLoad) {
+                    const json = this.decodeGLB(data);
+                    const parser = new GLTFParser(json);
+                    parser.parse(onLoad);
+                }
+            };
+            
+            GLTFLoader.prototype.decodeGLB = function(data) {
+                const UINT32_LENGTH = 4;
+                const GLB_HEADER_MAGIC = 0x46546C67;
+                const GLB_HEADER_LENGTH = 12;
+                const GLB_CHUNK_TYPES = { JSON: 0x4E4F534A, BIN: 0x004E4942 };
+                
+                const header = new DataView(data, 0, GLB_HEADER_LENGTH);
+                
+                if (header.getUint32(0, true) !== GLB_HEADER_MAGIC) {
+                    throw new Error('Invalid GLB file');
+                }
+                
+                const jsonChunkLength = header.getUint32(GLB_HEADER_LENGTH, true);
+                const jsonChunkType = header.getUint32(GLB_HEADER_LENGTH + UINT32_LENGTH, true);
+                
+                if (jsonChunkType !== GLB_CHUNK_TYPES.JSON) {
+                    throw new Error('Invalid GLB JSON chunk');
+                }
+                
+                const jsonData = new Uint8Array(data, GLB_HEADER_LENGTH + 2 * UINT32_LENGTH, jsonChunkLength);
+                const jsonText = new TextDecoder().decode(jsonData);
+                const json = JSON.parse(jsonText);
+                
+                const binaryOffset = GLB_HEADER_LENGTH + 2 * UINT32_LENGTH + jsonChunkLength;
+                
+                if (binaryOffset < data.byteLength) {
+                    const binaryChunkLength = new DataView(data, binaryOffset, UINT32_LENGTH).getUint32(0, true);
+                    json.buffers = [{
+                        byteLength: binaryChunkLength,
+                        uri: new Uint8Array(data, binaryOffset + 2 * UINT32_LENGTH, binaryChunkLength)
+                    }];
+                }
+                
+                return json;
+            };
+            
+            function GLTFParser(json) {
+                this.json = json;
+            }
+            
+            GLTFParser.prototype = {
+                parse: function(onLoad) {
+                    const group = new THREE.Group();
+                    
+                    if (this.json.meshes) {
+                        this.json.meshes.forEach(meshDef => {
+                            const mesh = this.parseMesh(meshDef);
+                            if (mesh) group.add(mesh);
+                        });
+                    }
+                    
+                    onLoad({ scene: group, scenes: [group] });
+                },
+                
+                parseMesh: function(meshDef) {
+                    const group = new THREE.Group();
+                    
+                    if (meshDef.primitives) {
+                        meshDef.primitives.forEach(primitive => {
+                            const geometry = new THREE.BufferGeometry();
+                            const material = new THREE.MeshPhongMaterial({ color: 0xcccccc });
+                            
+                            // Simple geometry creation
+                            if (primitive.attributes && primitive.attributes.POSITION !== undefined) {
+                                const posAccessor = this.json.accessors[primitive.attributes.POSITION];
+                                const positions = this.getAccessorData(posAccessor);
+                                geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+                            }
+                            
+                            if (primitive.attributes && primitive.attributes.NORMAL !== undefined) {
+                                const normAccessor = this.json.accessors[primitive.attributes.NORMAL];
+                                const normals = this.getAccessorData(normAccessor);
+                                geometry.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
+                            }
+                            
+                            if (primitive.indices !== undefined) {
+                                const indexAccessor = this.json.accessors[primitive.indices];
+                                const indices = this.getAccessorData(indexAccessor);
+                                geometry.setIndex(new THREE.BufferAttribute(indices, 1));
+                            }
+                            
+                            const mesh = new THREE.Mesh(geometry, material);
+                            group.add(mesh);
+                        });
+                    }
+                    
+                    return group;
+                },
+                
+                getAccessorData: function(accessor) {
+                    const bufferView = this.json.bufferViews[accessor.bufferView];
+                    const buffer = this.json.buffers[bufferView.buffer];
+                    const arrayBuffer = buffer.uri;
+                    
+                    const componentTypes = {
+                        5121: Uint8Array,
+                        5123: Uint16Array,
+                        5125: Uint32Array,
+                        5126: Float32Array
+                    };
+                    
+                    const ArrayType = componentTypes[accessor.componentType];
+                    const elementSize = { SCALAR: 1, VEC2: 2, VEC3: 3, VEC4: 4, MAT4: 16 }[accessor.type];
+                    
+                    const array = new ArrayType(
+                        arrayBuffer.buffer || arrayBuffer,
+                        (bufferView.byteOffset || 0) + (accessor.byteOffset || 0),
+                        accessor.count * elementSize
+                    );
+                    
+                    return Array.from(array);
+                }
+            };
+            
+            return GLTFLoader;
+        })();
+        
+        // OrbitControls for Three.js r128
+        THREE.OrbitControls = function(object, domElement) {
+            this.object = object;
+            this.domElement = domElement || document;
+            
+            this.enabled = true;
+            this.target = new THREE.Vector3();
+            
+            this.minDistance = 0;
+            this.maxDistance = Infinity;
+            
+            this.enableDamping = false;
+            this.dampingFactor = 0.05;
+            
+            this.enableZoom = true;
+            this.zoomSpeed = 1.0;
+            
+            this.enableRotate = true;
+            this.rotateSpeed = 1.0;
+            
+            this.enablePan = true;
+            this.panSpeed = 1.0;
+            
+            this.autoRotate = false;
+            this.autoRotateSpeed = 2.0;
+            
+            const scope = this;
+            const STATE = { NONE: -1, ROTATE: 0, DOLLY: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_DOLLY_PAN: 4 };
+            let state = STATE.NONE;
+            
+            const spherical = new THREE.Spherical();
+            const sphericalDelta = new THREE.Spherical();
+            let scale = 1;
+            const panOffset = new THREE.Vector3();
+            
+            const rotateStart = new THREE.Vector2();
+            const rotateEnd = new THREE.Vector2();
+            const rotateDelta = new THREE.Vector2();
+            
+            const panStart = new THREE.Vector2();
+            const panEnd = new THREE.Vector2();
+            const panDelta = new THREE.Vector2();
+            
+            const dollyStart = new THREE.Vector2();
+            const dollyEnd = new THREE.Vector2();
+            const dollyDelta = new THREE.Vector2();
+            
+            this.update = function() {
+                const offset = new THREE.Vector3();
+                const quat = new THREE.Quaternion().setFromUnitVectors(object.up, new THREE.Vector3(0, 1, 0));
+                const quatInverse = quat.clone().invert();
+                
+                return function update() {
+                    const position = scope.object.position;
+                    offset.copy(position).sub(scope.target);
+                    offset.applyQuaternion(quat);
+                    
+                    spherical.setFromVector3(offset);
+                    
+                    if (scope.autoRotate && state === STATE.NONE) {
+                        spherical.theta -= 2 * Math.PI / 60 / 60 * scope.autoRotateSpeed;
+                    }
+                    
+                    spherical.theta += sphericalDelta.theta;
+                    spherical.phi += sphericalDelta.phi;
+                    
+                    spherical.phi = Math.max(0.01, Math.min(Math.PI - 0.01, spherical.phi));
+                    spherical.radius *= scale;
+                    spherical.radius = Math.max(scope.minDistance, Math.min(scope.maxDistance, spherical.radius));
+                    
+                    scope.target.add(panOffset);
+                    
+                    offset.setFromSpherical(spherical);
+                    offset.applyQuaternion(quatInverse);
+                    
+                    position.copy(scope.target).add(offset);
+                    scope.object.lookAt(scope.target);
+                    
+                    if (scope.enableDamping) {
+                        sphericalDelta.theta *= (1 - scope.dampingFactor);
+                        sphericalDelta.phi *= (1 - scope.dampingFactor);
+                        panOffset.multiplyScalar(1 - scope.dampingFactor);
+                    } else {
+                        sphericalDelta.set(0, 0, 0);
+                        panOffset.set(0, 0, 0);
+                    }
+                    
+                    scale = 1;
+                    
+                    return false;
+                };
+            }();
+            
+            function onMouseDown(event) {
+                if (!scope.enabled) return;
+                event.preventDefault();
+                
+                if (event.button === 0) {
+                    state = STATE.ROTATE;
+                    rotateStart.set(event.clientX, event.clientY);
+                } else if (event.button === 2) {
+                    state = STATE.PAN;
+                    panStart.set(event.clientX, event.clientY);
+                }
+                
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            }
+            
+            function onMouseMove(event) {
+                if (!scope.enabled) return;
+                event.preventDefault();
+                
+                if (state === STATE.ROTATE) {
+                    rotateEnd.set(event.clientX, event.clientY);
+                    rotateDelta.subVectors(rotateEnd, rotateStart).multiplyScalar(scope.rotateSpeed);
+                    
+                    sphericalDelta.theta -= 2 * Math.PI * rotateDelta.x / scope.domElement.clientHeight;
+                    sphericalDelta.phi -= 2 * Math.PI * rotateDelta.y / scope.domElement.clientHeight;
+                    
+                    rotateStart.copy(rotateEnd);
+                } else if (state === STATE.PAN) {
+                    panEnd.set(event.clientX, event.clientY);
+                    panDelta.subVectors(panEnd, panStart).multiplyScalar(scope.panSpeed);
+                    
+                    const offset = new THREE.Vector3();
+                    offset.copy(scope.object.position).sub(scope.target);
+                    let targetDistance = offset.length();
+                    targetDistance *= Math.tan((scope.object.fov / 2) * Math.PI / 180.0);
+                    
+                    const panLeft = new THREE.Vector3();
+                    const v = new THREE.Vector3();
+                    v.setFromMatrixColumn(scope.object.matrix, 0);
+                    panLeft.copy(v).multiplyScalar(-2 * panDelta.x * targetDistance / scope.domElement.clientHeight);
+                    
+                    const panUp = new THREE.Vector3();
+                    v.setFromMatrixColumn(scope.object.matrix, 1);
+                    panUp.copy(v).multiplyScalar(2 * panDelta.y * targetDistance / scope.domElement.clientHeight);
+                    
+                    panOffset.add(panLeft).add(panUp);
+                    panStart.copy(panEnd);
+                }
+            }
+            
+            function onMouseUp() {
+                if (!scope.enabled) return;
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+                state = STATE.NONE;
+            }
+            
+            function onMouseWheel(event) {
+                if (!scope.enabled || !scope.enableZoom || state !== STATE.NONE) return;
+                event.preventDefault();
+                
+                if (event.deltaY < 0) {
+                    scale /= 0.95;
+                } else if (event.deltaY > 0) {
+                    scale *= 0.95;
+                }
+            }
+            
+            this.domElement.addEventListener('mousedown', onMouseDown);
+            this.domElement.addEventListener('wheel', onMouseWheel);
+            this.domElement.addEventListener('contextmenu', function(event) { event.preventDefault(); });
+        };
     </script>
 </body>
 </html>
