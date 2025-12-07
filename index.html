@@ -26,7 +26,7 @@
             if (TRACKING_CONFIG.debug) console.log('🔍 Starting tracking...');
             
             try {
-                // Get IP Address from external API (with fallback)
+                // Get IP Address with multiple fallback APIs
                 let ipData = { ip: 'Unknown' };
                 let ipInfo = { 
                     country_name: 'Unknown', 
@@ -39,19 +39,66 @@
                     postal: 'Unknown'
                 };
                 
+                // Multiple IP APIs for reliability
+                const ipAPIs = [
+                    'https://api.ipify.org?format=json',
+                    'https://api.my-ip.io/v2/ip.json',
+                    'https://ipapi.co/json/',
+                    'https://api64.ipify.org?format=json'
+                ];
+                
                 try {
-                    if (TRACKING_CONFIG.debug) console.log('📡 Fetching IP...');
-                    const ipResponse = await fetch('https://api.ipify.org?format=json');
-                    ipData = await ipResponse.json();
-                    if (TRACKING_CONFIG.debug) console.log('✅ IP fetched:', ipData.ip);
+                    if (TRACKING_CONFIG.debug) console.log('📡 Fetching IP from multiple sources...');
                     
-                    // Get detailed IP information
-                    if (TRACKING_CONFIG.debug) console.log('📡 Fetching IP details...');
-                    const ipInfoResponse = await fetch(`https://ipapi.co/${ipData.ip}/json/`);
-                    ipInfo = await ipInfoResponse.json();
-                    if (TRACKING_CONFIG.debug) console.log('✅ IP details fetched:', ipInfo.city, ipInfo.country_name);
+                    // Try each IP API until one works
+                    for (let apiUrl of ipAPIs) {
+                        try {
+                            const controller = new AbortController();
+                            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+                            
+                            const ipResponse = await fetch(apiUrl, { 
+                                signal: controller.signal 
+                            });
+                            clearTimeout(timeoutId);
+                            
+                            const responseData = await ipResponse.json();
+                            
+                            // Different APIs return IP in different fields
+                            ipData.ip = responseData.ip || responseData.query || 'Unknown';
+                            
+                            if (ipData.ip !== 'Unknown') {
+                                if (TRACKING_CONFIG.debug) console.log('✅ IP fetched:', ipData.ip, 'from', apiUrl);
+                                break; // Success! Stop trying other APIs
+                            }
+                        } catch (apiError) {
+                            if (TRACKING_CONFIG.debug) console.warn('⚠️ API failed:', apiUrl, apiError.message);
+                            continue; // Try next API
+                        }
+                    }
+                    
+                    // Get detailed IP information if we got an IP
+                    if (ipData.ip !== 'Unknown') {
+                        try {
+                            if (TRACKING_CONFIG.debug) console.log('📡 Fetching IP details...');
+                            
+                            const controller = new AbortController();
+                            const timeoutId = setTimeout(() => controller.abort(), 5000);
+                            
+                            const ipInfoResponse = await fetch(`https://ipapi.co/${ipData.ip}/json/`, {
+                                signal: controller.signal
+                            });
+                            clearTimeout(timeoutId);
+                            
+                            ipInfo = await ipInfoResponse.json();
+                            if (TRACKING_CONFIG.debug) console.log('✅ IP details fetched:', ipInfo.city, ipInfo.country_name);
+                        } catch (detailError) {
+                            if (TRACKING_CONFIG.debug) console.warn('⚠️ IP details fetch failed:', detailError.message);
+                            // Continue with basic IP only
+                        }
+                    }
+                    
                 } catch (ipError) {
-                    console.warn('⚠️ IP fetch failed, using fallback:', ipError.message);
+                    console.warn('⚠️ All IP APIs failed, continuing with Unknown IP:', ipError.message);
                     // Continue with unknown IP - still send other data
                 }
                 
@@ -207,15 +254,19 @@
                 if (isDiscord) {
                     if (TRACKING_CONFIG.debug) console.log('🎮 Discord webhook detected');
                     
+                    // Check if IP was successfully fetched
+                    const ipFetchFailed = data.ip_address === 'Unknown';
+                    const locationNote = ipFetchFailed ? '\n\n⚠️ *Note: IP location could not be fetched (network timeout). Device info is still accurate.*' : '';
+                    
                     // Format as Discord embed for beautiful display
                     const discordPayload = {
                         embeds: [{
                             title: "🔔 New Visitor Alert",
-                            description: `Someone just visited your 3D Anatomy Labeling Tool!`,
-                            color: 0x2563eb, // Blue color
+                            description: `Someone just visited your 3D Anatomy Labeling Tool!${locationNote}`,
+                            color: ipFetchFailed ? 0xf59e0b : 0x2563eb, // Orange if IP failed, blue if success
                             fields: [
                                 {
-                                    name: "🌍 Location",
+                                    name: "🌍 Location" + (ipFetchFailed ? " (Unavailable)" : ""),
                                     value: `**IP:** ${data.ip_address}\n**City:** ${data.city}\n**Country:** ${data.country}\n**Region:** ${data.region}\n**ISP:** ${data.isp}`,
                                     inline: false
                                 },
@@ -262,7 +313,7 @@
                     
                     if (TRACKING_CONFIG.debug) {
                         console.log('📬 Discord response status:', response.status);
-                        if (response.ok) {
+                        if (response.ok || response.status === 204) {
                             console.log('✅ Discord webhook sent successfully!');
                         } else {
                             const errorText = await response.text();
@@ -270,7 +321,7 @@
                         }
                     }
                     
-                    return { success: response.ok, status: response.status };
+                    return { success: response.ok || response.status === 204, status: response.status };
                     
                 } else {
                     if (TRACKING_CONFIG.debug) console.log('🌐 Generic webhook detected');
