@@ -844,13 +844,19 @@
             white-space: nowrap;
             pointer-events: auto;
             cursor: pointer;
+            user-select: none;
         }
         
         .label-marker:hover {
-            transform: scale(1.1);
+            transform: scale(1.15);
+            background: rgba(220, 38, 38, 0.95);
             box-shadow: 
                 0 6px 16px rgba(0, 0, 0, 0.4),
-                0 0 30px rgba(37, 99, 235, 0.7);
+                0 0 30px rgba(220, 38, 38, 0.7);
+        }
+        
+        .label-marker:active {
+            transform: scale(1.05);
         }
         
         /* Modal */
@@ -1223,7 +1229,7 @@
                 <div id="viewer-canvas"></div>
                 
                 <div class="viewer-info">
-                    <strong>Quick Guide:</strong> Click "Labeling Mode" to activate, then click anywhere on the 3D model to add labels. Use the sidebar to manage your labels.
+                    <strong>Quick Guide:</strong> Click "Labeling Mode" to activate, then click anywhere on the 3D model to add labels. Click on any label to delete it. Use the sidebar to manage your labels.
                 </div>
                 
                 <div class="controls">
@@ -1260,9 +1266,10 @@
                     <h3>How to Label</h3>
                     <ul>
                         <li>Click "Labeling Mode" to activate</li>
-                        <li>Click on the 3D model</li>
-                        <li>Type the label name</li>
-                        <li>Press Enter to save</li>
+                        <li>Click on the 3D model to add labels</li>
+                        <li>Type the label name and press Enter</li>
+                        <li>Click any label to delete it</li>
+                        <li>Use buttons below to manage labels</li>
                     </ul>
                 </div>
                 
@@ -1675,6 +1682,21 @@
             marker.className = 'label-marker';
             marker.textContent = label.text;
             marker.style.display = labelsVisible ? 'block' : 'none';
+            
+            // Make marker clickable to delete
+            marker.onclick = (e) => {
+                e.stopPropagation();
+                const index = labelMarkers.findIndex(m => m.element === marker);
+                if (index !== -1) {
+                    if (confirm(`Delete label "${label.text}"?`)) {
+                        deleteLabel(index);
+                    }
+                }
+            };
+            
+            // Add hover tooltip
+            marker.title = `Click to delete "${label.text}"`;
+            
             container.appendChild(marker);
             
             labelMarkers.push({
@@ -1726,8 +1748,8 @@
                         <span class="label-number">#${index + 1}</span>
                         <span class="label-text">${label.text}</span>
                         <div class="label-actions">
-                            <button class="icon-btn edit" onclick="editLabel(${index})" title="Edit">Edit</button>
-                            <button class="icon-btn delete" onclick="deleteLabel(${index})" title="Delete">Delete</button>
+                            <button class="icon-btn edit" onclick="editLabel(${index})" title="Edit">EDIT</button>
+                            <button class="icon-btn delete" onclick="confirmDeleteLabel(${index})" title="Delete">DELETE</button>
                         </div>
                     </div>
                     <div class="label-position">
@@ -1739,17 +1761,23 @@
             document.getElementById('labelCount').textContent = labels.length;
         }
         
+        function confirmDeleteLabel(index) {
+            if (confirm(`Delete label "${models[currentModelIndex].labels[index].text}"?`)) {
+                deleteLabel(index);
+            }
+        }
+        
         function deleteLabel(index) {
-            if (!confirm('Delete this label?')) return;
-            
+            // Remove from data
             models[currentModelIndex].labels.splice(index, 1);
             
-            // Remove marker
+            // Remove marker element from DOM
             if (labelMarkers[index]) {
                 labelMarkers[index].element.remove();
                 labelMarkers.splice(index, 1);
             }
             
+            // Update the list UI
             updateLabelsList();
             showNotification('Label deleted');
         }
@@ -1950,6 +1978,7 @@
         window.saveLabel = saveLabel;
         window.cancelLabel = cancelLabel;
         window.deleteLabel = deleteLabel;
+        window.confirmDeleteLabel = confirmDeleteLabel;
         window.editLabel = editLabel;
         window.clearAllLabels = clearAllLabels;
         window.exportLabels = exportLabels;
