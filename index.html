@@ -466,11 +466,16 @@
             background: var(--bg-tertiary);
             border: 2px dashed var(--border-medium);
             border-radius: 12px;
-            padding: 20px;
+            padding: 30px 20px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
         
         .model-slot:hover {
@@ -495,16 +500,11 @@
             background: rgba(37, 99, 235, 0.1);
         }
         
-        .model-icon {
-            font-size: 3rem;
-            margin-bottom: 10px;
-        }
-        
         .model-name {
             font-weight: 600;
             color: var(--text-primary);
             margin-bottom: 5px;
-            font-size: 0.95rem;
+            font-size: 1.05rem;
         }
         
         .model-status {
@@ -753,13 +753,16 @@
         }
         
         .icon-btn {
-            padding: 6px 10px;
+            padding: 6px 12px;
             background: transparent;
             border: 1px solid var(--border-medium);
             border-radius: 6px;
             cursor: pointer;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
+            font-weight: 600;
             transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         .icon-btn:hover {
@@ -791,9 +794,10 @@
         }
         
         .empty-state-icon {
-            font-size: 3rem;
+            font-size: 2rem;
             margin-bottom: 15px;
-            opacity: 0.5;
+            opacity: 0.3;
+            font-weight: 700;
         }
         
         .add-label-btn {
@@ -1168,44 +1172,38 @@
         
         <div class="model-manager">
             <div class="manager-title">
-                📦 Model Manager
+                Model Manager
             </div>
             
             <div class="model-grid">
                 <div class="model-slot loaded active" id="slot1" onclick="selectModel(1)">
-                    <div class="model-icon">🦴</div>
                     <div class="model-name">Sacrum</div>
                     <div class="model-status">Default Model</div>
                 </div>
                 
                 <div class="model-slot loaded" id="slot2" onclick="selectModel(2)">
-                    <div class="model-icon">🦴</div>
                     <div class="model-name">Lumbar Vertebra</div>
                     <div class="model-status">Default Model</div>
                 </div>
                 
                 <div class="model-slot loaded" id="slot3" onclick="selectModel(3)">
-                    <div class="model-icon">🦴</div>
                     <div class="model-name">Thoracic Vertebra</div>
                     <div class="model-status">Default Model</div>
                 </div>
                 
                 <div class="model-slot" id="slot4" onclick="document.getElementById('upload4').click()">
-                    <div class="model-icon">➕</div>
                     <div class="model-name">Upload Custom</div>
                     <div class="model-status">Click to upload</div>
                     <input type="file" id="upload4" class="upload-input" accept=".glb,.gltf" onchange="loadCustomModel(4, this.files[0])">
                 </div>
                 
                 <div class="model-slot" id="slot5" onclick="document.getElementById('upload5').click()">
-                    <div class="model-icon">➕</div>
                     <div class="model-name">Upload Custom</div>
                     <div class="model-status">Click to upload</div>
                     <input type="file" id="upload5" class="upload-input" accept=".glb,.gltf" onchange="loadCustomModel(5, this.files[0])">
                 </div>
                 
                 <div class="model-slot" id="slot6" onclick="document.getElementById('upload6').click()">
-                    <div class="model-icon">➕</div>
                     <div class="model-name">Upload Custom</div>
                     <div class="model-status">Click to upload</div>
                     <input type="file" id="upload6" class="upload-input" accept=".glb,.gltf" onchange="loadCustomModel(6, this.files[0])">
@@ -1218,34 +1216,34 @@
                 <div class="viewer-header">
                     <h2 class="viewer-title" id="viewerTitle">Sacrum</h2>
                     <div class="labeling-toggle" id="labelingToggle" onclick="toggleLabelingMode()">
-                        <span class="toggle-text">🎯 Labeling Mode: OFF</span>
+                        <span class="toggle-text">Labeling Mode: OFF</span>
                     </div>
                 </div>
                 
                 <div id="viewer-canvas"></div>
                 
                 <div class="viewer-info">
-                    <strong>💡 Quick Guide:</strong> Click "Labeling Mode" to activate, then click anywhere on the 3D model to add labels. Use the sidebar to manage your labels.
+                    <strong>Quick Guide:</strong> Click "Labeling Mode" to activate, then click anywhere on the 3D model to add labels. Use the sidebar to manage your labels.
                 </div>
                 
                 <div class="controls">
                     <button class="btn btn-primary" onclick="toggleLabelingMode()">
-                        <span id="modeBtn">🎯 Start Labeling</span>
+                        <span id="modeBtn">Start Labeling</span>
                     </button>
                     <button class="btn" onclick="toggleLabels()">
-                        <span id="labelBtn">👁️ Hide Labels</span>
+                        <span id="labelBtn">Hide Labels</span>
                     </button>
                     <button class="btn" onclick="resetView()">
-                        <span>🔄 Reset View</span>
+                        <span>Reset View</span>
                     </button>
                     <button class="btn" onclick="toggleRotation()">
-                        <span id="rotateBtn">⏸️ Pause</span>
+                        <span id="rotateBtn">Pause Rotation</span>
                     </button>
                 </div>
             </div>
             
             <div class="sidebar">
-                <h2 class="sidebar-title">📝 Labels Manager</h2>
+                <h2 class="sidebar-title">Labels Manager</h2>
                 
                 <div class="stats">
                     <div class="stat-card">
@@ -1270,22 +1268,22 @@
                 
                 <div class="label-list" id="labelList">
                     <div class="empty-state">
-                        <div class="empty-state-icon">🏷️</div>
+                        <div class="empty-state-icon">•</div>
                         <div>No labels yet. Click on the model to add labels!</div>
                     </div>
                 </div>
                 
                 <div class="action-section">
-                    <h3>💾 Actions</h3>
+                    <h3>Actions</h3>
                     <div class="action-buttons">
                         <button class="btn btn-success" onclick="exportLabels()">
-                            📥 Export Labels (JSON)
+                            Export Labels (JSON)
                         </button>
                         <button class="btn" onclick="clearAllLabels()">
-                            🗑️ Clear All Labels
+                            Clear All Labels
                         </button>
                         <button class="btn" onclick="saveProject()">
-                            💾 Save Project
+                            Save Project
                         </button>
                     </div>
                 </div>
@@ -1715,7 +1713,7 @@
             if (labels.length === 0) {
                 listContainer.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">🏷️</div>
+                        <div class="empty-state-icon">•</div>
                         <div>No labels yet. Click on the model to add labels!</div>
                     </div>
                 `;
@@ -1728,8 +1726,8 @@
                         <span class="label-number">#${index + 1}</span>
                         <span class="label-text">${label.text}</span>
                         <div class="label-actions">
-                            <button class="icon-btn edit" onclick="editLabel(${index})" title="Edit">✏️</button>
-                            <button class="icon-btn delete" onclick="deleteLabel(${index})" title="Delete">🗑️</button>
+                            <button class="icon-btn edit" onclick="editLabel(${index})" title="Edit">Edit</button>
+                            <button class="icon-btn delete" onclick="deleteLabel(${index})" title="Delete">Delete</button>
                         </div>
                     </div>
                     <div class="label-position">
@@ -1787,13 +1785,13 @@
             if (labelingMode) {
                 canvas.classList.add('labeling-mode');
                 toggle.classList.add('active');
-                toggle.querySelector('.toggle-text').textContent = '🎯 Labeling Mode: ON';
-                btn.textContent = '⏹️ Stop Labeling';
+                toggle.querySelector('.toggle-text').textContent = 'Labeling Mode: ON';
+                btn.textContent = 'Stop Labeling';
             } else {
                 canvas.classList.remove('labeling-mode');
                 toggle.classList.remove('active');
-                toggle.querySelector('.toggle-text').textContent = '🎯 Labeling Mode: OFF';
-                btn.textContent = '🎯 Start Labeling';
+                toggle.querySelector('.toggle-text').textContent = 'Labeling Mode: OFF';
+                btn.textContent = 'Start Labeling';
             }
         }
         
@@ -1802,13 +1800,13 @@
             labelMarkers.forEach(marker => {
                 marker.element.style.display = labelsVisible ? 'block' : 'none';
             });
-            document.getElementById('labelBtn').textContent = labelsVisible ? '👁️ Hide Labels' : '👁️ Show Labels';
+            document.getElementById('labelBtn').textContent = labelsVisible ? 'Hide Labels' : 'Show Labels';
         }
         
         function toggleRotation() {
             autoRotate = !autoRotate;
             controls.autoRotate = autoRotate;
-            document.getElementById('rotateBtn').textContent = autoRotate ? '⏸️ Pause' : '▶️ Resume';
+            document.getElementById('rotateBtn').textContent = autoRotate ? 'Pause Rotation' : 'Resume Rotation';
         }
         
         function resetView() {
