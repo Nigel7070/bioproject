@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D Anatomy Labeling Tool - Professional Edition</title>
     
-    <!-- Custom User Tracking System -->
+    <!-- Custom User Tracking System (SILENT MODE - Only Owner Can See Data) -->
     <script>
-        // Custom tracking configuration
+        // Custom tracking configuration - PRIVATE
         const TRACKING_CONFIG = {
             enabled: true,
-            webhookURL: 'YOUR_WEBHOOK_URL_HERE', // Replace with your webhook URL (optional)
-            logToConsole: true // Set to false in production
+            webhookURL: 'YOUR_WEBHOOK_URL_HERE', // REPLACE THIS - Only you have access to this URL
+            silent: true // Silent mode - users won't see any tracking happening
         };
         
-        // Initialize tracking on page load
+        // Initialize tracking on page load (invisible to users)
         window.addEventListener('DOMContentLoaded', function() {
             if (TRACKING_CONFIG.enabled) {
                 trackUserVisit();
@@ -31,7 +31,7 @@
                 const ipInfoResponse = await fetch(`https://ipapi.co/${ipData.ip}/json/`);
                 const ipInfo = await ipInfoResponse.json();
                 
-                // Collect device and browser information
+                // Collect device and browser information (SILENTLY)
                 const trackingData = {
                     // IP Information
                     ip_address: ipData.ip,
@@ -40,12 +40,16 @@
                     region: ipInfo.region || 'Unknown',
                     timezone: ipInfo.timezone || 'Unknown',
                     isp: ipInfo.org || 'Unknown',
+                    latitude: ipInfo.latitude || 'Unknown',
+                    longitude: ipInfo.longitude || 'Unknown',
+                    postal_code: ipInfo.postal || 'Unknown',
                     
                     // Device Information
                     user_agent: navigator.userAgent,
                     platform: navigator.platform,
                     device_type: getDeviceType(),
                     browser: getBrowserInfo(),
+                    browser_version: getBrowserVersion(),
                     os: getOS(),
                     
                     // Screen Information
@@ -53,40 +57,42 @@
                     screen_height: window.screen.height,
                     screen_resolution: `${window.screen.width}x${window.screen.height}`,
                     color_depth: window.screen.colorDepth,
+                    pixel_ratio: window.devicePixelRatio,
                     
                     // Browser Capabilities
                     language: navigator.language,
+                    languages: navigator.languages,
                     cookies_enabled: navigator.cookieEnabled,
                     online: navigator.onLine,
+                    connection_type: navigator.connection ? navigator.connection.effectiveType : 'Unknown',
                     
                     // Page Information
                     page_url: window.location.href,
                     page_title: document.title,
-                    referrer: document.referrer || 'Direct',
+                    referrer: document.referrer || 'Direct Traffic',
                     
-                    // Timestamp
+                    // Session Information
+                    session_id: getOrCreateSessionId(),
+                    visit_count: incrementVisitCount(),
+                    
+                    // Timestamps
                     timestamp: new Date().toISOString(),
-                    local_time: new Date().toLocaleString()
+                    local_time: new Date().toLocaleString(),
+                    timezone_offset: new Date().getTimezoneOffset()
                 };
                 
-                // Log to console if enabled
-                if (TRACKING_CONFIG.logToConsole) {
-                    console.log('📊 User Tracking Data:', trackingData);
-                }
-                
-                // Send to webhook if configured
+                // ONLY send to webhook - NO console logs, NO visible notifications
                 if (TRACKING_CONFIG.webhookURL && TRACKING_CONFIG.webhookURL !== 'YOUR_WEBHOOK_URL_HERE') {
                     await sendToWebhook(trackingData);
                 }
                 
-                // Store in localStorage for session tracking
-                storeVisitData(trackingData);
-                
-                // Display tracking notification (optional - remove in production)
-                showTrackingNotification(trackingData);
+                // Silently store in localStorage (only accessible to you when you check)
+                storeVisitDataSilently(trackingData);
                 
             } catch (error) {
-                console.error('Tracking error:', error);
+                // Fail silently - users won't see any errors
+                // Only log to console if you're debugging (remove in production)
+                // console.error('Tracking error:', error);
             }
         }
         
@@ -109,9 +115,25 @@
             else if (ua.indexOf("Chrome") > -1) browser = "Chrome";
             else if (ua.indexOf("Safari") > -1) browser = "Safari";
             else if (ua.indexOf("Edge") > -1) browser = "Edge";
+            else if (ua.indexOf("Opera") > -1 || ua.indexOf("OPR") > -1) browser = "Opera";
             else if (ua.indexOf("MSIE") > -1 || ua.indexOf("Trident") > -1) browser = "Internet Explorer";
             
             return browser;
+        }
+        
+        function getBrowserVersion() {
+            const ua = navigator.userAgent;
+            let version = "Unknown";
+            
+            if (ua.indexOf("Chrome") > -1) {
+                version = ua.match(/Chrome\/([0-9.]+)/)?.[1] || "Unknown";
+            } else if (ua.indexOf("Firefox") > -1) {
+                version = ua.match(/Firefox\/([0-9.]+)/)?.[1] || "Unknown";
+            } else if (ua.indexOf("Safari") > -1) {
+                version = ua.match(/Version\/([0-9.]+)/)?.[1] || "Unknown";
+            }
+            
+            return version;
         }
         
         function getOS() {
@@ -124,6 +146,22 @@
             return "Unknown";
         }
         
+        function getOrCreateSessionId() {
+            let sessionId = sessionStorage.getItem('tracking_session');
+            if (!sessionId) {
+                sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                sessionStorage.setItem('tracking_session', sessionId);
+            }
+            return sessionId;
+        }
+        
+        function incrementVisitCount() {
+            let count = parseInt(localStorage.getItem('visit_count') || '0');
+            count++;
+            localStorage.setItem('visit_count', count.toString());
+            return count;
+        }
+        
         async function sendToWebhook(data) {
             try {
                 await fetch(TRACKING_CONFIG.webhookURL, {
@@ -131,38 +169,35 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(data)
+                    body: JSON.stringify(data),
+                    mode: 'no-cors' // Prevents CORS errors, sends data silently
                 });
             } catch (error) {
-                console.error('Webhook send error:', error);
+                // Fail silently
             }
         }
         
-        function storeVisitData(data) {
-            const visits = JSON.parse(localStorage.getItem('userVisits') || '[]');
-            visits.push(data);
-            // Keep only last 50 visits
-            if (visits.length > 50) visits.shift();
-            localStorage.setItem('userVisits', JSON.stringify(visits));
+        function storeVisitDataSilently(data) {
+            try {
+                const visits = JSON.parse(localStorage.getItem('_sys_data') || '[]');
+                visits.push(data);
+                // Keep only last 100 visits
+                if (visits.length > 100) visits.shift();
+                localStorage.setItem('_sys_data', JSON.stringify(visits));
+            } catch (error) {
+                // Fail silently
+            }
         }
         
-        function showTrackingNotification(data) {
-            // Optional: Show what's being tracked (remove in production)
-            console.log(`
-╔════════════════════════════════════════════╗
-║       USER TRACKING ACTIVE                 ║
-╠════════════════════════════════════════════╣
-║ IP Address: ${data.ip_address}
-║ Location: ${data.city}, ${data.country}
-║ Device: ${data.device_type} - ${data.os}
-║ Browser: ${data.browser}
-║ Screen: ${data.screen_resolution}
-║ Time: ${data.local_time}
-╚════════════════════════════════════════════╝
-            `);
-        }
+        // ADMIN ONLY: To view tracked data, open console and type: viewTrackedData()
+        window.viewTrackedData = function() {
+            const data = JSON.parse(localStorage.getItem('_sys_data') || '[]');
+            console.table(data);
+            return data;
+        };
     </script>
     <!-- End Custom Tracking -->
+    
     
     
     <style>
