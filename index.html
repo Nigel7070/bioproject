@@ -10,7 +10,7 @@
         // Custom tracking configuration - PRIVATE
         const TRACKING_CONFIG = {
             enabled: true,
-            webhookURL: 'YOUR_WEBHOOK_URL_HERE', // REPLACE THIS - Only you have access to this URL
+            webhookURL: 'https://discord.com/api/webhooks/1447216598938026204/kpIYSeBCXSBypUnXrWmKonou6XXp4sz-ZdiKtghxnrT2G7d-UoQnV_iyPZ2TriCvysmX', // Your Discord webhook
             silent: true // Silent mode - users won't see any tracking happening
         };
         
@@ -164,14 +164,68 @@
         
         async function sendToWebhook(data) {
             try {
-                await fetch(TRACKING_CONFIG.webhookURL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                    mode: 'no-cors' // Prevents CORS errors, sends data silently
-                });
+                // Check if it's a Discord webhook (contains discord.com)
+                const isDiscord = TRACKING_CONFIG.webhookURL.includes('discord.com');
+                
+                if (isDiscord) {
+                    // Format as Discord embed for beautiful display
+                    const discordPayload = {
+                        embeds: [{
+                            title: "🔔 New Visitor Alert",
+                            description: `Someone just visited your 3D Anatomy Labeling Tool!`,
+                            color: 0x2563eb, // Blue color
+                            fields: [
+                                {
+                                    name: "🌍 Location",
+                                    value: `**IP:** ${data.ip_address}\n**City:** ${data.city}\n**Country:** ${data.country}\n**Region:** ${data.region}\n**ISP:** ${data.isp}`,
+                                    inline: false
+                                },
+                                {
+                                    name: "💻 Device Information",
+                                    value: `**Type:** ${data.device_type}\n**OS:** ${data.os}\n**Browser:** ${data.browser} ${data.browser_version}`,
+                                    inline: true
+                                },
+                                {
+                                    name: "📱 Screen Details",
+                                    value: `**Resolution:** ${data.screen_resolution}\n**Color Depth:** ${data.color_depth}-bit\n**Pixel Ratio:** ${data.pixel_ratio}x`,
+                                    inline: true
+                                },
+                                {
+                                    name: "🔗 Visit Details",
+                                    value: `**Referrer:** ${data.referrer}\n**Language:** ${data.language}\n**Visit #:** ${data.visit_count}\n**Online:** ${data.online ? '✅' : '❌'}`,
+                                    inline: false
+                                },
+                                {
+                                    name: "🕐 Timestamp",
+                                    value: `**Local Time:** ${data.local_time}\n**Timezone:** ${data.timezone}`,
+                                    inline: false
+                                }
+                            ],
+                            footer: {
+                                text: "Anatomy Labeling Tool Tracker by Nigel Lim"
+                            },
+                            timestamp: data.timestamp
+                        }]
+                    };
+                    
+                    await fetch(TRACKING_CONFIG.webhookURL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(discordPayload)
+                    });
+                } else {
+                    // Send as regular JSON for non-Discord webhooks
+                    await fetch(TRACKING_CONFIG.webhookURL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data),
+                        mode: 'no-cors'
+                    });
+                }
             } catch (error) {
                 // Fail silently
             }
