@@ -1905,20 +1905,6 @@
                 }
             });
         }
-            const searchTerm = document.getElementById('modelSearch').value.toLowerCase();
-            const slots = document.querySelectorAll('.model-slot');
-            
-            slots.forEach((slot, index) => {
-                const modelName = models[index + 1]?.name?.toLowerCase() || '';
-                const slotName = slot.querySelector('.model-name')?.textContent.toLowerCase() || '';
-                
-                if (modelName.includes(searchTerm) || slotName.includes(searchTerm) || searchTerm === '') {
-                    slot.classList.remove('hidden');
-                } else {
-                    slot.classList.add('hidden');
-                }
-            });
-        }
         
         function updateLabelsList() {
             const listContainer = document.getElementById('labelList');
