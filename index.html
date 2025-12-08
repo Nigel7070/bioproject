@@ -1578,6 +1578,9 @@
                 return;
             }
             
+            // Show loading notification
+            showNotification(`Loading ${modelData.name}...`);
+            
             // Load new model
             const loader = new GLTFLoader();
             loader.load(
@@ -1622,7 +1625,8 @@
                 },
                 undefined,
                 (error) => {
-                    console.error('Error loading model:', error);
+                    console.error(`Error loading ${modelData.name} (${modelData.file}):`, error);
+                    alert(`ERROR Loading Model: ${modelData.name}\n\nFile: ${modelData.file}\n\nError: ${error.message || error}\n\nThe GLB file might be corrupted. Try:\n1. Re-downloading the file\n2. Re-uploading to GitHub\n3. Testing the file at gltf-viewer.donmccurdy.com`);
                     showNotification(`Error loading ${modelData.name}`, true);
                 }
             );
