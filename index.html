@@ -455,10 +455,32 @@
             gap: 10px;
         }
         
+        /* Search Bar */
+        .search-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border-medium);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
         .model-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
             margin-bottom: 20px;
         }
         
@@ -466,16 +488,31 @@
             background: var(--bg-tertiary);
             border: 2px dashed var(--border-medium);
             border-radius: 12px;
-            padding: 30px 20px;
+            padding: 20px 15px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
-            min-height: 120px;
+            min-height: 100px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+        }
+        
+        .model-slot.hidden {
+            display: none;
+        }
+        
+        .model-slot.upload-slot {
+            border-style: dashed;
+            border-color: var(--border-light);
+            background: var(--bg-secondary);
+        }
+        
+        .model-slot.upload-slot:hover {
+            border-color: var(--primary-blue);
+            background: rgba(37, 99, 235, 0.05);
         }
         
         .model-slot:hover {
@@ -504,7 +541,12 @@
             font-weight: 600;
             color: var(--text-primary);
             margin-bottom: 5px;
-            font-size: 1.05rem;
+            font-size: 0.9rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
+            display: block;
         }
         
         .model-status {
@@ -569,6 +611,10 @@
             font-size: 1.3rem;
             font-weight: 700;
             color: var(--text-primary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 60%;
         }
         
         .labeling-toggle {
@@ -972,6 +1018,10 @@
             font-weight: 800;
             color: var(--primary-blue);
             line-height: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
         }
         
         .stat-label {
@@ -1181,38 +1231,63 @@
                 Model Manager
             </div>
             
-            <div class="model-grid">
+            <!-- Search Bar -->
+            <div class="search-container">
+                <input type="text" id="modelSearch" class="search-input" placeholder="Search models..." onkeyup="searchModels()">
+            </div>
+            
+            <div class="model-grid" id="modelGrid">
                 <div class="model-slot loaded active" id="slot1" onclick="selectModel(1)">
-                    <div class="model-name">Sacrum</div>
+                    <div class="model-name" title="Arm Bone - Freely Movable Joints">Arm Bone - Freely Movable Joints</div>
                     <div class="model-status">Default Model</div>
                 </div>
                 
                 <div class="model-slot loaded" id="slot2" onclick="selectModel(2)">
-                    <div class="model-name">Lumbar Vertebra</div>
+                    <div class="model-name" title="Human Cartilage Disc">Human Cartilage Disc</div>
                     <div class="model-status">Default Model</div>
                 </div>
                 
                 <div class="model-slot loaded" id="slot3" onclick="selectModel(3)">
-                    <div class="model-name">Thoracic Vertebra</div>
+                    <div class="model-name" title="Cervical Vertebra">Cervical Vertebra</div>
                     <div class="model-status">Default Model</div>
                 </div>
                 
-                <div class="model-slot" id="slot4" onclick="document.getElementById('upload4').click()">
-                    <div class="model-name">Upload Custom</div>
-                    <div class="model-status">Click to upload</div>
-                    <input type="file" id="upload4" class="upload-input" accept=".glb,.gltf" onchange="loadCustomModel(4, this.files[0])">
+                <div class="model-slot loaded" id="slot4" onclick="selectModel(4)">
+                    <div class="model-name" title="Lumbar Vertebrae">Lumbar Vertebrae</div>
+                    <div class="model-status">Default Model</div>
                 </div>
                 
-                <div class="model-slot" id="slot5" onclick="document.getElementById('upload5').click()">
-                    <div class="model-name">Upload Custom</div>
-                    <div class="model-status">Click to upload</div>
-                    <input type="file" id="upload5" class="upload-input" accept=".glb,.gltf" onchange="loadCustomModel(5, this.files[0])">
+                <div class="model-slot loaded" id="slot5" onclick="selectModel(5)">
+                    <div class="model-name" title="Rib">Rib</div>
+                    <div class="model-status">Default Model</div>
                 </div>
                 
-                <div class="model-slot" id="slot6" onclick="document.getElementById('upload6').click()">
+                <div class="model-slot loaded" id="slot6" onclick="selectModel(6)">
+                    <div class="model-name" title="Sacrum">Sacrum</div>
+                    <div class="model-status">Default Model</div>
+                </div>
+                
+                <div class="model-slot loaded" id="slot7" onclick="selectModel(7)">
+                    <div class="model-name" title="Thoracic Vertebrae">Thoracic Vertebrae</div>
+                    <div class="model-status">Default Model</div>
+                </div>
+                
+                <div class="model-slot upload-slot" id="slot8" onclick="document.getElementById('upload8').click()">
                     <div class="model-name">Upload Custom</div>
                     <div class="model-status">Click to upload</div>
-                    <input type="file" id="upload6" class="upload-input" accept=".glb,.gltf" onchange="loadCustomModel(6, this.files[0])">
+                    <input type="file" id="upload8" class="upload-input" accept=".glb,.gltf" onchange="loadCustomModel(8, this.files[0])">
+                </div>
+                
+                <div class="model-slot upload-slot" id="slot9" onclick="document.getElementById('upload9').click()">
+                    <div class="model-name">Upload Custom</div>
+                    <div class="model-status">Click to upload</div>
+                    <input type="file" id="upload9" class="upload-input" accept=".glb,.gltf" onchange="loadCustomModel(9, this.files[0])">
+                </div>
+                
+                <div class="model-slot upload-slot" id="slot10" onclick="document.getElementById('upload10').click()">
+                    <div class="model-name">Upload Custom</div>
+                    <div class="model-status">Click to upload</div>
+                    <input type="file" id="upload10" class="upload-input" accept=".glb,.gltf" onchange="loadCustomModel(10, this.files[0])">
                 </div>
             </div>
         </div>
@@ -1220,7 +1295,7 @@
         <div class="workspace">
             <div class="viewer-section">
                 <div class="viewer-header">
-                    <h2 class="viewer-title" id="viewerTitle">Sacrum</h2>
+                    <h2 class="viewer-title" id="viewerTitle">Arm Bone - Freely Movable Joints</h2>
                     <div class="labeling-toggle" id="labelingToggle" onclick="toggleLabelingMode()">
                         <span class="toggle-text">Labeling Mode: OFF</span>
                     </div>
@@ -1257,14 +1332,15 @@
                         <div class="stat-label">Labels</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number" id="modelName">Sacrum</div>
+                        <div class="stat-number" id="modelName" style="font-size: 0.9rem;">Arm Bone</div>
                         <div class="stat-label">Active Model</div>
                     </div>
                 </div>
                 
                 <div class="instructions">
-                    <h3>How to Label</h3>
+                    <h3>How to Use</h3>
                     <ul>
+                        <li>Use search bar to find specific models</li>
                         <li>Click "Labeling Mode" to activate</li>
                         <li>Click on the 3D model to add labels</li>
                         <li>Type the label name and press Enter</li>
@@ -1407,13 +1483,17 @@
         let pendingLabelPosition = null;
         
         const models = {
-            1: { name: 'Sacrum', file: 'sacrum.glb', model: null, labels: [] },
-            2: { name: 'Lumbar Vertebra', file: 'lumbarvertebrae.glb', model: null, labels: [] },
-            3: { name: 'Thoracic Vertebra', file: 'thoracicvertebrae.glb', model: null, labels: [] },
-            4: { name: null, file: null, model: null, labels: [] },
-            5: { name: null, file: null, model: null, labels: [] },
-            6: { name: null, file: null, model: null, labels: [] }
+            1: { name: 'Arm Bone - Freely Movable Joints', file: 'Arm bone - Freely movable joints (Ball-and-socket joint).glb', model: null, labels: [] },
+            2: { name: 'Human Cartilage Disc', file: 'Human cartilage disc - Slightly movable joints (Cartilaginous joints).glb', model: null, labels: [] },
+            3: { name: 'Cervical Vertebra', file: 'cervical_vertebra.glb', model: null, labels: [] },
+            4: { name: 'Lumbar Vertebrae', file: 'lumbarvertebrae.glb', model: null, labels: [] },
+            5: { name: 'Rib', file: 'rib (1).glb', model: null, labels: [] },
+            6: { name: 'Sacrum', file: 'sacrum.glb', model: null, labels: [] },
+            7: { name: 'Thoracic Vertebrae', file: 'thoracicvertebrae.glb', model: null, labels: [] }
         };
+        
+        let nextSlotIndex = 8; // Start custom uploads from slot 8
+        const emptySlotCount = 3; // Always maintain 3 empty upload slots
         
         const labelMarkers = [];
         
@@ -1487,14 +1567,13 @@
             const modelData = models[index];
             if (!modelData.file) return;
             
-            // Remove current model
-            if (models[currentModelIndex].model) {
-                scene.remove(models[currentModelIndex].model);
-            }
-            
             // If model already loaded, just show it
             if (modelData.model) {
-                scene.add(modelData.model);
+                // Hide all other models
+                Object.values(models).forEach(m => {
+                    if (m.model) m.model.visible = false;
+                });
+                modelData.model.visible = true;
                 updateUI();
                 return;
             }
@@ -1529,7 +1608,15 @@
                         }
                     });
                     
+                    // Hide all models first
+                    Object.values(models).forEach(m => {
+                        if (m.model) m.model.visible = false;
+                    });
+                    
+                    // Add to scene (keep in scene always, just toggle visibility)
                     scene.add(modelData.model);
+                    modelData.model.visible = true;
+                    
                     updateUI();
                     showNotification(`${modelData.name} loaded successfully!`);
                 },
@@ -1577,12 +1664,30 @@
                         }
                     });
                     
+                    // Add to scene but hide initially
+                    scene.add(modelData.model);
+                    modelData.model.visible = false;
+                    
                     // Update slot UI
                     const slot = document.getElementById(`slot${index}`);
                     slot.classList.add('loaded');
-                    slot.querySelector('.model-name').textContent = modelData.name;
+                    slot.classList.remove('upload-slot'); // Remove upload-slot class
+                    const nameElement = slot.querySelector('.model-name');
+                    nameElement.textContent = modelData.name;
+                    nameElement.title = modelData.name;
                     slot.querySelector('.model-status').textContent = 'Custom Model';
                     
+                    // Remove file input
+                    const fileInput = slot.querySelector('.upload-input');
+                    if (fileInput) fileInput.remove();
+                    
+                    // Ensure click handler works
+                    slot.onclick = () => selectModel(index);
+                    
+                    // Maintain 3 empty upload slots
+                    maintainEmptySlots();
+                    
+                    // Automatically select the newly uploaded model
                     selectModel(index);
                     showNotification(`${modelData.name} uploaded successfully!`);
                 });
@@ -1595,15 +1700,22 @@
             document.querySelectorAll('.model-slot').forEach(slot => slot.classList.remove('active'));
             document.getElementById(`slot${index}`).classList.add('active');
             
-            // Switch model
-            if (models[currentModelIndex].model) {
-                scene.remove(models[currentModelIndex].model);
-            }
+            // Hide all models instead of removing them
+            Object.values(models).forEach(modelData => {
+                if (modelData.model) {
+                    modelData.model.visible = false;
+                }
+            });
+            
+            // Clear label markers from previous model
+            labelMarkers.forEach(marker => marker.element.remove());
+            labelMarkers.length = 0;
             
             currentModelIndex = index;
             
+            // Show the selected model
             if (models[index].model) {
-                scene.add(models[index].model);
+                models[index].model.visible = true;
             } else if (models[index].file) {
                 loadModel(index);
             }
@@ -1711,6 +1823,9 @@
                 const vector = label.position.clone();
                 vector.project(camera);
                 
+                // Calculate depth (z-value after projection)
+                const depth = vector.z;
+                
                 const x = (vector.x * 0.5 + 0.5) * renderer.domElement.clientWidth;
                 const y = (-(vector.y) * 0.5 + 0.5) * renderer.domElement.clientHeight;
                 
@@ -1718,12 +1833,89 @@
                 label.element.style.top = y + 'px';
                 label.element.style.transform = 'translate(-50%, -50%)';
                 
-                if (vector.z > 1 || x < 0 || x > renderer.domElement.clientWidth || y < 0 || y > renderer.domElement.clientHeight) {
+                // Hide labels that are behind the model or off-screen
+                const isBehind = depth > 0.7;
+                const isOffScreen = x < 0 || x > renderer.domElement.clientWidth || 
+                                   y < 0 || y > renderer.domElement.clientHeight;
+                
+                if (isBehind || isOffScreen) {
                     label.element.style.opacity = '0';
                     label.element.style.pointerEvents = 'none';
                 } else {
-                    label.element.style.opacity = vector.z > 0.5 ? '0.7' : '1';
+                    // Fade labels based on depth
+                    const opacity = depth > 0.3 ? 0.5 : 1;
+                    label.element.style.opacity = opacity.toString();
                     label.element.style.pointerEvents = 'auto';
+                }
+            });
+        }
+        
+        function createNewUploadSlot() {
+            const grid = document.getElementById('modelGrid');
+            const newIndex = nextSlotIndex;
+            nextSlotIndex++;
+            
+            // Create new upload slot
+            const newSlot = document.createElement('div');
+            newSlot.className = 'model-slot upload-slot';
+            newSlot.id = `slot${newIndex}`;
+            newSlot.onclick = () => document.getElementById(`upload${newIndex}`).click();
+            
+            newSlot.innerHTML = `
+                <div class="model-name">Upload Custom</div>
+                <div class="model-status">Click to upload</div>
+                <input type="file" id="upload${newIndex}" class="upload-input" accept=".glb,.gltf" onchange="loadCustomModel(${newIndex}, this.files[0])">
+            `;
+            
+            // Add to grid
+            grid.appendChild(newSlot);
+            
+            // Initialize models entry
+            models[newIndex] = { name: null, file: null, model: null, labels: [] };
+        }
+        
+        function getEmptyUploadSlots() {
+            const allSlots = document.querySelectorAll('.upload-slot');
+            return Array.from(allSlots).filter(slot => !slot.classList.contains('loaded')).length;
+        }
+        
+        function maintainEmptySlots() {
+            const emptyCount = getEmptyUploadSlots();
+            const slotsNeeded = emptySlotCount - emptyCount;
+            
+            for (let i = 0; i < slotsNeeded; i++) {
+                createNewUploadSlot();
+            }
+        }
+        
+        function searchModels() {
+            const searchTerm = document.getElementById('modelSearch').value.toLowerCase();
+            const slots = document.querySelectorAll('.model-slot');
+            
+            slots.forEach((slot) => {
+                const slotId = slot.id.replace('slot', '');
+                const slotIndex = parseInt(slotId);
+                const modelName = models[slotIndex]?.name?.toLowerCase() || '';
+                const slotName = slot.querySelector('.model-name')?.textContent.toLowerCase() || '';
+                
+                if (modelName.includes(searchTerm) || slotName.includes(searchTerm) || searchTerm === '') {
+                    slot.classList.remove('hidden');
+                } else {
+                    slot.classList.add('hidden');
+                }
+            });
+        }
+            const searchTerm = document.getElementById('modelSearch').value.toLowerCase();
+            const slots = document.querySelectorAll('.model-slot');
+            
+            slots.forEach((slot, index) => {
+                const modelName = models[index + 1]?.name?.toLowerCase() || '';
+                const slotName = slot.querySelector('.model-name')?.textContent.toLowerCase() || '';
+                
+                if (modelName.includes(searchTerm) || slotName.includes(searchTerm) || searchTerm === '') {
+                    slot.classList.remove('hidden');
+                } else {
+                    slot.classList.add('hidden');
                 }
             });
         }
@@ -1845,8 +2037,19 @@
         
         function updateUI() {
             const modelData = models[currentModelIndex];
-            document.getElementById('viewerTitle').textContent = modelData.name || 'No Model';
-            document.getElementById('modelName').textContent = modelData.name || 'None';
+            const fullName = modelData.name || 'No Model';
+            
+            // Show full name in viewer title with tooltip
+            const titleElement = document.getElementById('viewerTitle');
+            titleElement.textContent = fullName;
+            titleElement.title = fullName;
+            
+            // Show shortened name in stat card (max 15 chars)
+            const shortName = fullName.length > 15 ? fullName.substring(0, 15) + '...' : fullName;
+            const modelNameElement = document.getElementById('modelName');
+            modelNameElement.textContent = shortName;
+            modelNameElement.title = fullName;
+            
             document.getElementById('labelCount').textContent = modelData.labels.length;
         }
         
@@ -1984,6 +2187,9 @@
         window.exportLabels = exportLabels;
         window.saveProject = saveProject;
         window.checkAnswer = checkAnswer;
+        window.searchModels = searchModels;
+        window.createNewUploadSlot = createNewUploadSlot;
+        window.maintainEmptySlots = maintainEmptySlots;
         
         // Initialize
         init();
